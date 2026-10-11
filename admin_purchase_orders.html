@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Purchase Orders - SweetBites</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Arial, sans-serif; }
+  body { background: #F5F5F5; color: #333; }
+  .navbar { background: white; padding: 12px 26px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #EEE; position: sticky; top: 0; z-index: 50; }
+  .brand, .user { display: flex; align-items: center; gap: 10px; }
+  .logo-box, .avatar { width: 38px; height: 38px; background: #6E2C4A; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; }
+  .logo-box { font-size: 18px; }
+  .brand-text .name { font-size: 15px; font-weight: 700; color: #4A1F33; line-height: 1.1; }
+  .brand-text .sub { font-size: 10.5px; color: #999; margin-top: 1px; }
+  .avatar { width: 34px; height: 34px; border-radius: 50%; font-size: 13px; font-weight: 700; }
+  .user .info { text-align: right; font-size: 12px; line-height: 1.3; }
+  .user .role { color: #333; font-weight: 600; }
+  .user .name { color: #999; }
+  .layout { display: flex; min-height: calc(100vh - 63px); }
+  .sidebar { width: 190px; background: white; border-right: 1px solid #EEE; padding: 22px 0; flex-shrink: 0; }
+  .sidebar a { display: block; padding: 12px 22px; font-size: 13.5px; color: #666; text-decoration: none; border-left: 3px solid transparent; }
+  .sidebar a.active { color: #4A1F33; font-weight: 600; border-left-color: #6E2C4A; background: #F7F0F3; }
+  .sidebar a:hover { background: #FAF5F7; }
+  .main { flex: 1; padding: 22px 28px 34px; min-width: 0; }
+  .page-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; margin-bottom: 22px; flex-wrap: wrap; }
+  .page-header h1 { font-size: 22px; font-weight: 700; color: #4A1F33; margin-bottom: 4px; }
+  .page-header p { font-size: 12.5px; color: #999; }
+  .card { background: white; border-radius: 10px; border: 1px solid #EEE; padding: 18px 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.03); }
+  .toolbar { display: grid; grid-template-columns: minmax(190px, 1fr) minmax(130px, .35fr) minmax(230px, .55fr); gap: 12px; margin-bottom: 16px; align-items: end; }
+  .filter-group { display: flex; flex-direction: column; gap: 5px; color: #777; font-size: 11px; }
+  .search, .filter { width: 100%; min-height: 38px; padding: 8px 11px; border: 1px solid #E5E5E5; border-radius: 6px; font-size: 12px; background: #FAFAFA; color: #555; }
+  .search { min-width: 0; }
+  .date-range { display: flex; gap: 6px; }
+  .date-range input { min-width: 0; flex: 1; }
+  .search:focus, .filter:focus, button:focus-visible, a:focus-visible { outline: 2px solid #6E2C4A; outline-offset: 2px; }
+  .btn { display: inline-block; border: 0; border-radius: 6px; padding: 9px 14px; cursor: pointer; font-size: 12.5px; font-weight: 600; text-decoration: none; text-align: center; }
+  .btn-primary { background: #6E2C4A; color: white; }
+  .btn-primary:hover { background: #5A2139; }
+  .btn-light { color: #6E2C4A; background: #F7F0F3; }
+  .btn-light:hover { background: #EDE3E7; }
+  .btn-danger { color: #A52826; background: #FCEDEC; }
+  .btn-danger:hover { background: #F8DAD8; }
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; min-width: 780px; text-align: left; }
+  th { color: #6E2C4A; background: #FCF5F8; font-weight: 600; font-size: 10.5px; text-transform: uppercase; letter-spacing: .25px; white-space: nowrap; }
+  th, td { padding: 10px 9px; border-bottom: 1px solid #F0E8EC; vertical-align: middle; }
+  td { font-size: 11.5px; }
+  tbody tr:hover { background: #FFFCFD; }
+  .order-id { color: #4A1F33; font-weight: 700; }
+  .muted { color: #888; line-height: 1.5; }
+  .status { display: inline-block; padding: 4px 9px; border-radius: 20px; font-size: 10px; font-weight: 700; white-space: nowrap; }
+  .status-pending { color: #765400; background: #FFF4CC; }
+  .status-ordered { color: #235B91; background: #E5F1FC; }
+  .status-processing { color: #235B91; background: #E5F1FC; }
+  .status-received { color: #256B38; background: #E5F5E8; }
+  .status-cancelled { color: #8B302D; background: #FCE9E8; }
+  .actions { display: flex; gap: 5px; }
+  .actions .btn { padding: 6px 8px; font-size: 12px; line-height: 1; min-width: 28px; }
+  .actions .action-icon { display: inline-flex; align-items: center; justify-content: center; }
+  .action-icon svg { display: block; width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+  .pagination { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-top: 13px; color: #888; font-size: 11px; }
+  .page-controls { display: flex; gap: 6px; }
+  .page-button { min-width: 30px; height: 30px; border: 1px solid #EDE3E7; border-radius: 5px; color: #6E2C4A; background: white; cursor: pointer; }
+  .page-button.active { color: white; background: #6E2C4A; border-color: #6E2C4A; }
+  .page-button:disabled { opacity: .4; cursor: not-allowed; }
+  .empty { padding: 32px 12px; text-align: center; color: #888; font-size: 13px; }
+  .message { display: none; padding: 12px 14px; margin-bottom: 16px; background: #FCEDEC; color: #8B302D; border-radius: 6px; font-size: 13px; }
+  .message.visible { display: block; }
+  @media (max-width: 900px) { .sidebar { display: none; } .main { padding: 18px 20px 28px; } table { min-width: 0; table-layout: fixed; } th, td { padding: 7px 4px; } th { white-space: normal; overflow-wrap: anywhere; font-size: 9px; } td { font-size: 10px; overflow-wrap: anywhere; } th:nth-child(1) { width: 11%; } th:nth-child(2) { width: 16%; } th:nth-child(3), th:nth-child(4) { width: 12%; } th:nth-child(5) { width: 7%; } th:nth-child(6) { width: 13%; } th:nth-child(7) { width: 13%; } th:nth-child(8) { width: 16%; } .actions { gap: 3px; } .actions .btn { min-width: 24px; padding: 5px; } }
+  @media (max-width: 900px) { .main { padding: 18px 20px 28px; } }
+  @media (max-width: 720px) { .toolbar { grid-template-columns: minmax(0, 1fr) minmax(115px, .45fr); } .date-group { grid-column: 1 / -1; } th, td { padding: 7px 3px; } td { font-size: 9px; } th:nth-child(1) { width: 10%; } th:nth-child(2) { width: 14%; } th:nth-child(3), th:nth-child(4) { width: 12%; } th:nth-child(5) { width: 7%; } th:nth-child(6) { width: 13%; } th:nth-child(7) { width: 13%; } th:nth-child(8) { width: 19%; } .actions { gap: 2px; } .actions .btn { min-width: 21px; padding: 4px 3px; font-size: 10px; } }
+  @media (max-width: 520px) { .navbar { padding: 10px 14px; } .main { padding: 14px 12px 22px; } .card { padding: 14px 10px; } .user .info { display: none; } .pagination { align-items: flex-start; flex-direction: column; } }
+</style>
+</head>
+<body>
+<div class="navbar">
+  <div class="brand"><div class="logo-box">🎂</div><div class="brand-text"><div class="name">SweetBites</div><div class="sub">Inventory System</div></div></div>
+  <div class="user"><div class="avatar">A</div><div class="info"><div class="role">Administrator</div><div class="name">Admin</div></div></div>
+</div>
+<div class="layout">
+  <aside class="sidebar">
+    <a href="admin_dashboard.html">Dashboard</a>
+    <a href="#">Ingredient Stock</a>
+    <a href="#">Supplier</a>
+    <a href="admin_purchase_orders.html" class="active" aria-current="page">Purchase Order</a>
+    <a href="admin_catalog.html">Product Catalog</a>
+  </aside>
+  <main class="main">
+    <div class="page-header">
+      <div><h1>Purchase Order List</h1><p>View and manage purchase orders</p></div>
+      <a class="btn btn-primary" href="admin_create_purchase_order.html">+ Create Purchase Order</a>
+    </div>
+    <div id="message" class="message" role="alert"></div>
+    <section class="card" aria-label="Purchase order list">
+      <div class="toolbar">
+        <input id="searchInput" class="search" type="search" placeholder="Search purchase order, supplier..." aria-label="Search purchase orders">
+        <label class="filter-group">Status
+          <select id="statusFilter" class="filter" aria-label="Filter by order status">
+            <option value="">All Status</option><option>Pending</option><option>Processing</option><option>Ordered</option><option>Received</option><option>Cancelled</option>
+          </select>
+        </label>
+        <div class="filter-group date-group"><span>Date Range</span><div class="date-range">
+          <input id="dateFrom" class="filter" type="date" aria-label="Start date">
+          <input id="dateTo" class="filter" type="date" aria-label="End date">
+        </div></div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>PO No.</th><th>Supplier</th><th>Order Date</th><th>Expected Date</th><th>Total Items</th><th>Total Amount (RM)</th><th>Status</th><th>Action</th></tr></thead>
+          <tbody id="orderRows"></tbody>
+        </table>
+      </div>
+      <div id="emptyState" class="empty" hidden>No purchase orders found. Create an order to get started.</div>
+      <div class="pagination">
+        <span id="pageSummary" aria-live="polite"></span>
+        <div id="pageControls" class="page-controls" aria-label="Purchase order pages"></div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script>
+window.PurchaseOrderStore = (function() {
+  const key = 'sweetbites.purchaseOrders';
+  const samples = [
+    { id: 'PO-2026015', supplier: 'Kirthana Supplies', orderDate: '2026-10-10', expectedDate: '2026-10-15', status: 'Pending', remarks: '', items: [{ ingredient: 'All-purpose flour', quantity: 10, unit: 'kg', unitPrice: 4.5 }, { ingredient: 'Unsalted butter', quantity: 5, unit: 'kg', unitPrice: 15 }, { ingredient: 'Eggs', quantity: 20, unit: 'pcs', unitPrice: 1.25 }] },
+    { id: 'PO-2026014', supplier: "Baker's Mart", orderDate: '2026-10-05', expectedDate: '2026-10-08', status: 'Received', remarks: '', items: [{ ingredient: 'All-purpose flour', quantity: 20, unit: 'kg', unitPrice: 5 }, { ingredient: 'Caster sugar', quantity: 10, unit: 'kg', unitPrice: 5.05 }] },
+    { id: 'PO-2026013', supplier: 'Fresh Dairy Sdn Bhd', orderDate: '2026-10-01', expectedDate: '2026-10-04', status: 'Processing', remarks: '', items: [{ ingredient: 'Unsalted butter', quantity: 10, unit: 'kg', unitPrice: 15 }, { ingredient: 'Eggs', quantity: 100, unit: 'pcs', unitPrice: 1.3 }] },
+    { id: 'PO-2026012', supplier: 'Sugar & Flour Trading', orderDate: '2026-09-28', expectedDate: '2026-10-03', status: 'Cancelled', remarks: '', items: [{ ingredient: 'Caster sugar', quantity: 20, unit: 'kg', unitPrice: 6 }, { ingredient: 'All-purpose flour', quantity: 10, unit: 'kg', unitPrice: 7 }] },
+    { id: 'PO-2026011', supplier: 'Daily Ingredients Co.', orderDate: '2026-09-20', expectedDate: '2026-09-25', status: 'Received', remarks: '', items: [{ ingredient: 'Heavy cream', quantity: 10, unit: 'L', unitPrice: 16 }, { ingredient: 'Unsalted butter', quantity: 20, unit: 'kg', unitPrice: 15 }, { ingredient: 'Eggs', quantity: 100, unit: 'pcs', unitPrice: 1.05 }] },
+    { id: 'PO-2026010', supplier: 'Cake Supplies MY', orderDate: '2026-09-15', expectedDate: '2026-09-18', status: 'Pending', remarks: '', items: [{ ingredient: 'Vanilla extract', quantity: 2, unit: 'L', unitPrice: 42.5 }] },
+    { id: 'PO-2026009', supplier: 'Happy Baking Sdn Bhd', orderDate: '2026-09-10', expectedDate: '2026-09-12', status: 'Received', remarks: '', items: [{ ingredient: 'All-purpose flour', quantity: 100, unit: 'kg', unitPrice: 4.5 }, { ingredient: 'Caster sugar', quantity: 40, unit: 'kg', unitPrice: 6 }, { ingredient: 'Eggs', quantity: 100, unit: 'pcs', unitPrice: 1.1 }] },
+    { id: 'PO-2026008', supplier: 'TasteWell Supplier', orderDate: '2026-09-01', expectedDate: '2026-09-05', status: 'Processing', remarks: '', items: [{ ingredient: 'Cocoa powder', quantity: 10, unit: 'kg', unitPrice: 18 }, { ingredient: 'Cream cheese', quantity: 10, unit: 'kg', unitPrice: 14 }] }
+  ];
+  function save(orders) { localStorage.setItem(key, JSON.stringify(orders)); }
+  function load() {
+    const saved = localStorage.getItem(key);
+    if (saved === null) { save(samples); return samples; }
+    const orders = JSON.parse(saved);
+    if (!Array.isArray(orders)) throw new Error('Saved purchase orders have an invalid format.');
+    const prices = { 'All-purpose flour': 4.5, 'Caster sugar': 5.2, 'Unsalted butter': 15, Eggs: 0.8, 'Cocoa powder': 18, 'Vanilla extract': 32, 'Cream cheese': 22, 'Heavy cream': 16, 'Fresh strawberries': 12 };
+    orders.forEach(function(order) {
+      if (!order || typeof order.id !== 'string' || !Array.isArray(order.items)) throw new Error('A saved purchase order has invalid data.');
+      order.expectedDate = order.expectedDate || order.orderDate;
+      order.remarks = order.remarks || '';
+      order.items.forEach(function(item) {
+        if (!item || typeof item.ingredient !== 'string') throw new Error('A saved purchase order has invalid ingredient data.');
+        item.unit = item.unit || 'kg';
+        item.unitPrice = Number.isFinite(Number(item.unitPrice)) ? Number(item.unitPrice) : (prices[item.ingredient] || 0);
+      });
+    });
+    save(orders);
+    return orders;
+  }
+  function total(order) {
+    return order.items.reduce(function(sum, item) { return sum + Number(item.quantity) * Number(item.unitPrice || 0); }, 0);
+  }
+  function formatDate(date) {
+    return date ? new Date(date + 'T00:00:00').toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' }) : '—';
+  }
+  return {
+    load: load, save: save, total: total, formatDate: formatDate,
+    formatAmount: function(amount) { return 'RM ' + amount.toFixed(2); },
+    nextId: function(orders) {
+      const highest = orders.reduce(function(max, order) {
+        const match = /^PO-(\d+)$/.exec(order.id);
+        return match ? Math.max(max, Number(match[1])) : max;
+      }, 1000);
+      return 'PO-' + String(highest + 1);
+    }
+  };
+})();
+</script>
+<script>
+  const pageSize = 8;
+  const rows = document.getElementById('orderRows');
+  const message = document.getElementById('message');
+  const store = window.PurchaseOrderStore;
+  let orders = [];
+  let currentPage = 1;
+
+  function showError(text) {
+    message.textContent = text;
+    message.classList.add('visible');
+  }
+
+  function statusClass(status) {
+    return 'status-' + status.toLowerCase();
+  }
+
+  function makeCell(text, className) {
+    const cell = document.createElement('td');
+    cell.textContent = text;
+    if (className) cell.className = className;
+    return cell;
+  }
+
+  function addIcon(link, paths) {
+    const icon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    icon.setAttribute('viewBox', '0 0 24 24');
+    icon.setAttribute('aria-hidden', 'true');
+    paths.forEach(function(pathData) {
+      const path = document.createElementNS('http://www.w3.org/2000/svg', pathData.tag);
+      Object.keys(pathData.attributes).forEach(function(attribute) {
+        path.setAttribute(attribute, pathData.attributes[attribute]);
+      });
+      icon.appendChild(path);
+    });
+    link.classList.add('action-icon');
+    link.appendChild(icon);
+  }
+
+  function renderOrders() {
+    const query = document.getElementById('searchInput').value.trim().toLowerCase();
+    const status = document.getElementById('statusFilter').value;
+    const dateFrom = document.getElementById('dateFrom').value;
+    const dateTo = document.getElementById('dateTo').value;
+    if (dateFrom && dateTo && dateFrom > dateTo) {
+      showError('Start date must be on or before the end date.');
+      return;
+    }
+    message.classList.remove('visible');
+    const filtered = orders.filter(function(order) {
+      const matchesQuery = [order.id, order.supplier].join(' ').toLowerCase().includes(query);
+      const matchesDate = (!dateFrom || order.orderDate >= dateFrom) && (!dateTo || order.orderDate <= dateTo);
+      return matchesQuery && (!status || order.status === status) && matchesDate;
+    });
+    const pageCount = Math.max(1, Math.ceil(filtered.length / pageSize));
+    currentPage = Math.min(currentPage, pageCount);
+    const start = (currentPage - 1) * pageSize;
+    const pageOrders = filtered.slice(start, start + pageSize);
+    rows.replaceChildren();
+    pageOrders.forEach(function(order) {
+      const row = document.createElement('tr');
+      row.appendChild(makeCell(order.id, 'order-id'));
+      row.appendChild(makeCell(order.supplier));
+      row.appendChild(makeCell(store.formatDate(order.orderDate)));
+      row.appendChild(makeCell(store.formatDate(order.expectedDate)));
+      row.appendChild(makeCell(String(order.items.length)));
+      row.appendChild(makeCell(store.total(order).toFixed(2)));
+      const statusCell = document.createElement('td');
+      const badge = document.createElement('span');
+      badge.className = 'status ' + statusClass(order.status);
+      badge.textContent = order.status;
+      statusCell.appendChild(badge);
+      row.appendChild(statusCell);
+      const actions = document.createElement('td');
+      actions.className = 'actions';
+      const viewButton = document.createElement('a');
+      viewButton.className = 'btn btn-light';
+      viewButton.href = 'admin_view_purchase_order.html?id=' + encodeURIComponent(order.id);
+      viewButton.setAttribute('aria-label', 'View ' + order.id);
+      viewButton.title = 'View purchase order';
+      addIcon(viewButton, [
+        { tag: 'path', attributes: { d: 'M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7z' } },
+        { tag: 'circle', attributes: { cx: '12', cy: '12', r: '3' } }
+      ]);
+      const editLink = document.createElement('a');
+      editLink.className = 'btn btn-light';
+      editLink.href = 'admin_create_purchase_order.html?mode=edit&id=' + encodeURIComponent(order.id);
+      editLink.textContent = '✎';
+      editLink.setAttribute('aria-label', 'Edit ' + order.id);
+      const deleteButton = document.createElement('a');
+      deleteButton.className = 'btn btn-danger';
+      deleteButton.href = 'admin_delete_purchase_order.html?id=' + encodeURIComponent(order.id);
+      deleteButton.setAttribute('aria-label', 'Delete ' + order.id);
+      deleteButton.title = 'Delete purchase order';
+      addIcon(deleteButton, [
+        { tag: 'path', attributes: { d: 'M3 6h18' } },
+        { tag: 'path', attributes: { d: 'M8 6V4h8v2' } },
+        { tag: 'path', attributes: { d: 'm19 6-1 14H6L5 6' } },
+        { tag: 'path', attributes: { d: 'M10 11v5M14 11v5' } }
+      ]);
+      actions.append(viewButton, editLink, deleteButton);
+      row.appendChild(actions);
+      rows.appendChild(row);
+    });
+    const emptyState = document.getElementById('emptyState');
+    emptyState.textContent = query || status || dateFrom || dateTo ? 'No purchase orders match your filters.' : 'No purchase orders found. Create an order to get started.';
+    emptyState.hidden = filtered.length > 0;
+    document.getElementById('pageSummary').textContent = filtered.length ? 'Showing ' + (start + 1) + ' to ' + Math.min(start + pageSize, filtered.length) + ' of ' + filtered.length + ' entries' : 'Showing 0 entries';
+    renderPagination(pageCount);
+  }
+
+  function renderPagination(pageCount) {
+    const controls = document.getElementById('pageControls');
+    controls.replaceChildren();
+    function addPageButton(label, page, disabled, active) {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'page-button' + (active ? ' active' : '');
+      button.textContent = label;
+      button.disabled = disabled;
+      if (active) button.setAttribute('aria-current', 'page');
+      button.addEventListener('click', function() {
+        currentPage = page;
+        renderOrders();
+      });
+      controls.appendChild(button);
+    }
+    addPageButton('‹', Math.max(1, currentPage - 1), currentPage === 1, false);
+    for (let page = 1; page <= pageCount; page += 1) {
+      addPageButton(String(page), page, false, page === currentPage);
+    }
+    addPageButton('›', Math.min(pageCount, currentPage + 1), currentPage === pageCount, false);
+  }
+
+  document.getElementById('searchInput').addEventListener('input', function() { currentPage = 1; renderOrders(); });
+  document.getElementById('statusFilter').addEventListener('change', function() { currentPage = 1; renderOrders(); });
+  document.getElementById('dateFrom').addEventListener('change', function() { currentPage = 1; renderOrders(); });
+  document.getElementById('dateTo').addEventListener('change', function() { currentPage = 1; renderOrders(); });
+  try {
+    orders = store.load();
+    renderOrders();
+  } catch (error) {
+    showError('Purchase orders could not be loaded: ' + error.message);
+    document.getElementById('emptyState').hidden = false;
+  }
+</script>
+</body>
+</html>

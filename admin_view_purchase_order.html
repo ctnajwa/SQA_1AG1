@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>View Purchase Order - SweetBites</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Arial, sans-serif; }
+  body { background: #F5F5F5; color: #333; }
+  .navbar { background: white; padding: 12px 26px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #EEE; }
+  .brand, .user { display: flex; align-items: center; gap: 10px; }
+  .logo-box, .avatar { width: 38px; height: 38px; background: #6E2C4A; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; }
+  .logo-box { font-size: 18px; }
+  .avatar { width: 34px; height: 34px; border-radius: 50%; font-size: 13px; font-weight: 700; }
+  .brand-text .name { font-size: 15px; font-weight: 700; color: #4A1F33; }
+  .brand-text .sub, .user .name { font-size: 10.5px; color: #999; }
+  .user .info { text-align: right; font-size: 12px; }
+  .user .role { font-weight: 600; }
+  .layout { display: flex; min-height: calc(100vh - 63px); }
+  .sidebar { width: 190px; background: white; border-right: 1px solid #EEE; padding: 22px 0; flex-shrink: 0; }
+  .sidebar a { display: block; padding: 12px 22px; color: #666; text-decoration: none; font-size: 13.5px; border-left: 3px solid transparent; }
+  .sidebar a.active { color: #4A1F33; font-weight: 600; border-left-color: #6E2C4A; background: #F7F0F3; }
+  .main { flex: 1; min-width: 0; padding: 24px 30px; max-width: 1100px; }
+  .back { display: inline-block; color: #6E2C4A; text-decoration: none; font-size: 12.5px; margin-bottom: 12px; }
+  h1 { color: #4A1F33; font-size: 22px; margin-bottom: 4px; }
+  .subtitle { color: #999; font-size: 12.5px; margin-bottom: 18px; }
+  .card { background: white; border: 1px solid #EEE; border-radius: 10px; padding: 18px 20px; margin-bottom: 14px; }
+  .card h2 { color: #4A1F33; font-size: 15px; margin-bottom: 12px; }
+  .detail-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+  .detail-label { display: block; color: #888; font-size: 11px; margin-bottom: 4px; }
+  .detail-value { color: #333; font-size: 13px; overflow-wrap: anywhere; }
+  .remarks { grid-column: 1 / -1; }
+  .status { display: inline-block; padding: 4px 9px; border-radius: 20px; font-size: 10px; font-weight: 700; }
+  .status-pending { color: #765400; background: #FFF4CC; }
+  .status-processing, .status-ordered { color: #235B91; background: #E5F1FC; }
+  .status-received { color: #256B38; background: #E5F5E8; }
+  .status-cancelled { color: #8B302D; background: #FCE9E8; }
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; min-width: 560px; border-collapse: collapse; }
+  th, td { padding: 9px 10px; border-bottom: 1px solid #F0E8EC; text-align: left; font-size: 12px; }
+  th { color: #6E2C4A; background: #FCF5F8; font-size: 11px; }
+  tfoot td { font-weight: 700; background: #FCF5F8; text-align: right; }
+  .actions { display: flex; justify-content: flex-end; gap: 9px; }
+  .btn { display: inline-block; border: 0; border-radius: 6px; padding: 9px 16px; cursor: pointer; font-size: 12.5px; font-weight: 600; text-decoration: none; }
+  .btn-primary { color: white; background: #6E2C4A; }
+  .btn-light { color: #6E2C4A; background: white; border: 1px solid #EDE3E7; }
+  .message { display: none; padding: 12px 14px; margin-bottom: 14px; color: #8B302D; background: #FCEDEC; border-radius: 6px; font-size: 13px; }
+  .message.visible { display: block; }
+  @media (max-width: 900px) { .sidebar { display: none; } .main { padding: 18px 20px; } }
+  @media (max-width: 600px) { .main { padding: 14px 12px; } .user .info { display: none; } .detail-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .actions { position: sticky; bottom: 0; padding: 10px 0; background: #F5F5F5; } }
+</style>
+</head>
+<body>
+<div class="navbar">
+  <div class="brand"><div class="logo-box">🎂</div><div class="brand-text"><div class="name">SweetBites</div><div class="sub">Inventory System</div></div></div>
+  <div class="user"><div class="avatar">A</div><div class="info"><div class="role">Administrator</div><div class="name">Admin</div></div></div>
+</div>
+<div class="layout">
+  <aside class="sidebar">
+    <a href="admin_dashboard.html">Dashboard</a><a href="#">Ingredient Stock</a><a href="#">Supplier</a>
+    <a href="admin_purchase_orders.html" class="active" aria-current="page">Purchase Order</a><a href="admin_catalog.html">Product Catalog</a>
+  </aside>
+  <main class="main">
+    <a class="back" href="admin_purchase_orders.html">&larr; Back to Purchase Order List</a>
+    <h1>Purchase Order Details</h1><p class="subtitle">View complete supplier and ingredient order information.</p>
+    <div id="message" class="message" role="alert"></div>
+    <section class="card"><h2>Order Information</h2><div id="details" class="detail-grid"></div></section>
+    <section class="card">
+      <h2>Ingredients</h2>
+      <div class="table-wrap"><table>
+        <thead><tr><th>No.</th><th>Ingredient</th><th>Quantity</th><th>Unit</th><th>Unit Price (RM)</th><th>Total (RM)</th></tr></thead>
+        <tbody id="itemRows"></tbody>
+        <tfoot><tr><td colspan="5">Total Amount</td><td id="totalAmount"></td></tr></tfoot>
+      </table></div>
+    </section>
+    <div class="actions">
+      <a class="btn btn-light" href="admin_purchase_orders.html">Back</a>
+      <a id="editLink" class="btn btn-primary">Edit Purchase Order</a>
+      <a id="deleteLink" class="btn btn-light">Delete Purchase Order</a>
+    </div>
+  </main>
+</div>
+<script>
+window.PurchaseOrderStore = (function() {
+  const key = 'sweetbites.purchaseOrders';
+  function load() {
+    const saved = localStorage.getItem(key);
+    const orders = saved === null ? [] : JSON.parse(saved);
+    if (!Array.isArray(orders)) throw new Error('Saved purchase orders have an invalid format.');
+    return orders;
+  }
+  function total(order) {
+    return order.items.reduce(function(sum, item) { return sum + Number(item.quantity) * Number(item.unitPrice || 0); }, 0);
+  }
+  function formatDate(date) {
+    return date ? new Date(date + 'T00:00:00').toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' }) : '—';
+  }
+  return {
+    load: load,
+    find: function(id) { return load().find(function(order) { return order.id === id; }) || null; },
+    total: total,
+    formatAmount: function(amount) { return 'RM ' + amount.toFixed(2); },
+    formatDate: formatDate
+  };
+})();
+</script>
+<script>
+  const message = document.getElementById('message');
+  try {
+    const id = new URLSearchParams(window.location.search).get('id');
+    const order = window.PurchaseOrderStore.find(id);
+    if (!order) throw new Error('Purchase order ' + id + ' was not found.');
+    const fields = [
+      ['PO No.', order.id],
+      ['Supplier', order.supplier],
+      ['Order Date', window.PurchaseOrderStore.formatDate(order.orderDate)],
+      ['Expected Date', window.PurchaseOrderStore.formatDate(order.expectedDate)],
+      ['Status', order.status],
+      ['Remarks', order.remarks || '—']
+    ];
+    fields.forEach(function(field) {
+      const wrapper = document.createElement('div');
+      if (field[0] === 'Remarks') wrapper.className = 'remarks';
+      const label = document.createElement('span');
+      label.className = 'detail-label';
+      label.textContent = field[0];
+      const value = document.createElement('span');
+      value.className = 'detail-value';
+      value.textContent = field[1];
+      if (field[0] === 'Status') {
+        value.replaceChildren();
+        const badge = document.createElement('span');
+        badge.className = 'status status-' + order.status.toLowerCase();
+        badge.textContent = order.status;
+        value.appendChild(badge);
+      }
+      wrapper.append(label, value);
+      document.getElementById('details').appendChild(wrapper);
+    });
+    order.items.forEach(function(item, index) {
+      const row = document.createElement('tr');
+      [String(index + 1), item.ingredient, String(item.quantity), item.unit, Number(item.unitPrice).toFixed(2), window.PurchaseOrderStore.formatAmount(item.quantity * item.unitPrice)].forEach(function(value) {
+        const cell = document.createElement('td');
+        cell.textContent = value;
+        row.appendChild(cell);
+      });
+      document.getElementById('itemRows').appendChild(row);
+    });
+    document.getElementById('totalAmount').textContent = window.PurchaseOrderStore.formatAmount(window.PurchaseOrderStore.total(order));
+    document.getElementById('editLink').href = 'admin_create_purchase_order.html?mode=edit&id=' + encodeURIComponent(order.id);
+    document.getElementById('deleteLink').href = 'admin_delete_purchase_order.html?id=' + encodeURIComponent(order.id);
+  } catch (error) {
+    message.textContent = 'Purchase order could not be loaded: ' + error.message;
+    message.classList.add('visible');
+  }
+</script>
+</body>
+</html>
