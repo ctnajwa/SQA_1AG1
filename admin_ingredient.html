@@ -1,0 +1,1156 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ingredient Stock - SweetBites</title>
+
+<style>
+/* General page design */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Arial, sans-serif;
+}
+
+body {
+    background: #F5F5F5;
+    color: #333;
+}
+
+.navbar {
+    background: white;
+    padding: 12px 26px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #EEE;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.brand, .user {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.logo-box, .avatar {
+    background: #6E2C4A;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+}
+
+.logo-box {
+    width: 38px;
+    height: 38px;
+}
+
+.avatar {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+}
+
+.brand-text .name {
+    color: #4A1F33;
+    font-size: 15px;
+    font-weight: bold;
+}
+
+.brand-text .sub, .user .name {
+    color: #999;
+    font-size: 11px;
+}
+
+.user .info {
+    text-align: right;
+    font-size: 12px;
+}
+
+.user .role {
+    font-weight: 600;
+}
+
+/* Sidebar navigation - maroon theme */
+.layout {
+    display: flex;
+    min-height: calc(100vh - 63px);
+}
+
+.sidebar {
+    width: 190px;
+    flex-shrink: 0;
+    background-color: #6E2C4A;
+    color: #FFFFFF;
+    border-right: 1px solid #EEE;
+    padding: 22px 0;
+}
+
+.sidebar a {
+    display: block;
+    padding: 12px 22px;
+    color: #FFFFFF;
+    text-decoration: none;
+    font-size: 13.5px;
+    border-left: 3px solid transparent;
+    transition: background 0.2s ease, color 0.2s ease;
+}
+
+/* Hover menu */
+.sidebar a:hover {
+    background-color: #4A1F33;
+    color: #FFFFFF;
+}
+
+/* Current page menu */
+.sidebar a.active {
+    color: #FFFFFF;
+    font-weight: bold;
+    background-color: #4A1F33;
+    border-left-color: #FFFFFF;
+}
+
+/* Main content and table card */
+.main {
+    flex: 1;
+    min-width: 0;
+    padding: 26px 32px 40px;
+}
+
+.page-header {
+    margin-bottom: 22px;
+}
+
+.page-header h1 {
+    color: #4A1F33;
+    font-size: 22px;
+}
+
+.page-header p, .card-header p {
+    color: #999;
+    font-size: 12.5px;
+    margin-top: 4px;
+}
+
+.card {
+    background: white;
+    border: 1px solid #EEE;
+    border-radius: 10px;
+    padding: 22px 24px;
+}
+
+.card-header {
+    margin-bottom: 18px;
+}
+
+.card-header h2 {
+    color: #4A1F33;
+    font-size: 16px;
+}
+
+/* Search, filter and buttons */
+.toolbar {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 18px;
+}
+
+.search-bar {
+    flex: 1;
+    min-width: 200px;
+    max-width: 380px;
+}
+
+input, select {
+    padding: 9px 11px;
+    border: 1px solid #E5E5E5;
+    border-radius: 6px;
+    font-size: 12.5px;
+}
+
+.search-bar input {
+    width: 100%;
+}
+
+input:focus, select:focus {
+    outline: none;
+    border-color: #6E2C4A;
+}
+
+.filter-select {
+    background: #FAFAFA;
+}
+
+button {
+    cursor: pointer;
+    border-radius: 5px;
+    font-weight: 600;
+    font-size: 11px;
+    padding: 8px 10px;
+}
+
+.btn-add {
+    margin-left: auto;
+    background: #6E2C4A;
+    color: white;
+    border: none;
+    padding: 9px 18px;
+}
+
+.btn-add:hover {
+    background: #4A1F33;
+}
+
+.btn-primary {
+    background: #EDE3E7;
+    color: #6E2C4A;
+    border: none;
+}
+
+.btn-secondary {
+    background: white;
+    color: #6E2C4A;
+    border: 1px solid #EDE3E7;
+}
+
+.btn-delete {
+    background: #F9E6E6;
+    color: #AC1816;
+    border: none;
+}
+
+.result-count {
+    color: #999;
+    font-size: 12px;
+    margin-bottom: 16px;
+}
+
+.result-count strong {
+    color: #4A1F33;
+}
+
+/* Ingredient table and status labels */
+.table-wrap {
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    min-width: 700px;
+    border-collapse: collapse;
+}
+
+thead {
+    background: #F7F0F3;
+    color: #4A1F33;
+}
+
+th, td {
+    text-align: left;
+    padding: 12px 10px;
+    font-size: 12px;
+}
+
+td {
+    border-bottom: 1px solid #F2F2F2;
+    font-size: 12.5px;
+}
+
+tbody tr:hover {
+    background: #FCFAFB;
+}
+
+.actions {
+    display: flex;
+    gap: 5px;
+    flex-wrap: wrap;
+}
+
+.status {
+    display: inline-block;
+    padding: 4px 9px;
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: bold;
+    white-space: nowrap;
+}
+
+.status-available {
+    background: #E5F3E7;
+    color: #3C7B4B;
+}
+
+.status-low {
+    background: #FFF0D1;
+    color: #9A6800;
+}
+
+.status-expired {
+    background: #F9E2E8;
+    color: #A23E57;
+}
+
+.empty {
+    display: none;
+    text-align: center;
+    padding: 24px;
+    color: #777;
+    font-size: 13px;
+}
+
+/* Inventory summary cards */
+.summary {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 18px;
+}
+
+.stat-card {
+    flex: 1;
+    min-width: 130px;
+    padding: 14px 16px;
+    background: #FCFAFB;
+    border: 1px solid #EEE;
+    border-radius: 8px;
+}
+
+.stat-card span {
+    display: block;
+    color: #888;
+    font-size: 12px;
+    margin-bottom: 7px;
+}
+
+.stat-card strong {
+    color: #4A1F33;
+    font-size: 22px;
+}
+
+/* Popup forms at the top centre */
+.modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.45);
+    z-index: 20;
+    justify-content: center;
+    align-items: flex-start;
+    overflow-y: auto;
+    padding: 45px 16px 20px;
+}
+
+.modal-overlay.active {
+    display: flex;
+}
+
+.modal {
+    background: white;
+    border-radius: 12px;
+    width: 100%;
+    max-width: 500px;
+    max-height: calc(100vh - 65px);
+    overflow-y: auto;
+    box-shadow: 0 10px 35px rgba(0,0,0,0.2);
+}
+
+.modal-header {
+    background: #F7F0F3;
+    padding: 16px 22px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #EDE3E7;
+}
+
+.modal-header h3 {
+    color: #6E2C4A;
+    font-size: 15px;
+}
+
+.modal-close {
+    border: none;
+    background: transparent;
+    color: #6E2C4A;
+    font-size: 22px;
+}
+
+.modal-body {
+    padding: 20px 22px;
+}
+
+.form-field {
+    margin-bottom: 14px;
+}
+
+.form-field label {
+    display: block;
+    font-size: 12.5px;
+    font-weight: 600;
+    margin-bottom: 6px;
+}
+
+.form-field input, .form-field select {
+    width: 100%;
+}
+
+.modal-footer {
+    padding: 14px 22px 20px;
+    display: flex;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 10px;
+    border-top: 1px solid #F2F2F2;
+}
+
+.detail-row {
+    display: flex;
+    gap: 15px;
+    padding: 11px 0;
+    border-bottom: 1px solid #F2F2F2;
+    font-size: 12.5px;
+}
+
+.detail-label {
+    width: 130px;
+    flex-shrink: 0;
+    color: #999;
+    font-weight: 600;
+}
+
+.detail-value {
+    flex: 1;
+    text-align: right;
+    overflow-wrap: anywhere;
+}
+
+/* Dark popup notification */
+.toast {
+    display: none;
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #222;
+    color: white;
+    padding: 12px 20px;
+    border-radius: 7px;
+    font-size: 13px;
+    z-index: 50;
+    box-shadow: 0 5px 18px rgba(0,0,0,0.25);
+    max-width: calc(100% - 30px);
+    text-align: center;
+}
+
+.toast.show {
+    display: block;
+}
+
+/* Responsive layout */
+@media (max-width: 900px) {
+    .sidebar {
+        width: 170px;
+    }
+
+    .main {
+        padding: 20px;
+    }
+}
+
+@media (max-width: 650px) {
+    .layout {
+        display: block;
+    }
+
+    .sidebar {
+        width: 100%;
+        padding: 8px 0;
+        display: flex;
+        overflow-x: auto;
+    }
+
+    .sidebar a {
+        white-space: nowrap;
+        padding: 10px 14px;
+    }
+
+    .main {
+        padding: 18px 12px;
+    }
+
+    .card {
+        padding: 16px 12px;
+    }
+
+    .navbar {
+        padding: 12px 14px;
+    }
+
+    .modal-overlay {
+        padding-top: 20px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<!-- Top navigation -->
+<div class="navbar">
+    <div class="brand">
+        <div class="logo-box">🎂</div>
+        <div class="brand-text">
+            <div class="name">SweetBites</div>
+            <div class="sub">Inventory System</div>
+        </div>
+    </div>
+
+    <div class="user">
+        <div class="avatar">A</div>
+        <div class="info">
+            <div class="role">Administrator</div>
+            <div class="name">Admin</div>
+        </div>
+    </div>
+</div>
+
+<div class="layout">
+
+    <!-- Sidebar navigation -->
+    <aside class="sidebar">
+        <a href="admin_dashboard.html">Dashboard</a>
+        <a href="admin_ingredient.html" class="active">Ingredient Stock</a>
+        <a href="#">Supplier</a>
+        <a href="#">Purchase Order</a>
+        <a href="admin_catalog.html">Product Catalog</a>
+    </aside>
+
+    <main class="main">
+        <div class="page-header">
+            <h1>Ingredient Stock</h1>
+            <p>Manage your SweetBites ingredients</p>
+        </div>
+
+        <section class="card">
+            <div class="card-header">
+                <h2>Ingredient List</h2>
+                <p>View and manage ingredient inventory</p>
+            </div>
+
+            <!-- Search, filter and add ingredient -->
+            <div class="toolbar">
+                <div class="search-bar">
+                    <input id="searchInput" type="text"
+                        placeholder="Search ingredients by name or category..."
+                        oninput="renderIngredients()">
+                </div>
+
+                <select id="statusFilter" class="filter-select"
+                    onchange="renderIngredients()">
+                    <option value="all">All Status</option>
+                    <option value="Available">Available</option>
+                    <option value="Low Stock">Low Stock</option>
+                    <option value="Expired">Expired</option>
+                </select>
+
+                <button type="button" class="btn-add"
+                    onclick="openAddModal()">+ Add Ingredient</button>
+            </div>
+
+            <div class="result-count">
+                Showing <strong id="resultCount">0</strong> ingredients
+            </div>
+
+            <!-- Ingredient table -->
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Ingredient Name</th>
+                            <th>Category</th>
+                            <th>Quantity</th>
+                            <th>Unit</th>
+                            <th>Expiry Date</th>
+                            <th>Stock Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ingredientTable"></tbody>
+                </table>
+                <div class="empty" id="emptyMessage">
+                    No ingredients found.
+                </div>
+            </div>
+
+            <!-- Stock summary -->
+            <div class="summary">
+                <div class="stat-card">
+                    <span>Total Ingredients</span>
+                    <strong id="totalCount">0</strong>
+                </div>
+                <div class="stat-card">
+                    <span>Low Stock</span>
+                    <strong id="lowStockCount">0</strong>
+                </div>
+                <div class="stat-card">
+                    <span>Expired</span>
+                    <strong id="expiredCount">0</strong>
+                </div>
+            </div>
+        </section>
+    </main>
+</div>
+
+<!-- Add and edit popup form -->
+<div class="modal-overlay" id="ingredientModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h3 id="modalTitle">Add Ingredient</h3>
+            <button type="button" class="modal-close"
+                onclick="closeModal('ingredientModal')">&times;</button>
+        </div>
+
+        <form id="ingredientForm">
+            <div class="modal-body">
+                <input type="hidden" id="ingredientId">
+
+                <div class="form-field">
+                    <label for="ingredientName">Ingredient Name</label>
+                    <input id="ingredientName" required>
+                </div>
+
+                <div class="form-field">
+                    <label for="ingredientCategory">Category</label>
+                    <select id="ingredientCategory" required>
+                        <option value="Baking">Baking</option>
+                        <option value="Dairy">Dairy</option>
+                        <option value="Fruits">Fruits</option>
+                        <option value="Sweeteners">Sweeteners</option>
+                        <option value="Others">Others</option>
+                    </select>
+                </div>
+
+                <div class="form-field">
+                    <label for="ingredientQuantity">Quantity</label>
+                    <input type="number" id="ingredientQuantity"
+                        min="0" step="any" required>
+                </div>
+
+                <div class="form-field">
+                    <label for="ingredientUnit">Unit</label>
+                    <select id="ingredientUnit" required>
+                        <option value="KG">KG</option>
+                        <option value="G">G</option>
+                        <option value="PCS">PCS</option>
+                        <option value="L">L</option>
+                        <option value="ML">ML</option>
+                    </select>
+                </div>
+
+                <div class="form-field">
+                    <label for="ingredientExpiry">Expiry Date</label>
+                    <input type="date" id="ingredientExpiry" required>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="submit" class="btn-add">
+                    Save Ingredient
+                </button>
+                <button type="button" class="btn-secondary"
+                    onclick="closeModal('ingredientModal')">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- View ingredient details popup -->
+<div class="modal-overlay" id="viewModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h3>Ingredient Details</h3>
+            <button type="button" class="modal-close"
+                onclick="closeModal('viewModal')">&times;</button>
+        </div>
+
+        <div class="modal-body" id="ingredientDetails"></div>
+
+        <div class="modal-footer">
+            <button type="button" class="btn-primary" id="editFromView">
+                Edit Ingredient
+            </button>
+            <button type="button" class="btn-secondary"
+                onclick="closeModal('viewModal')">Close</button>
+        </div>
+    </div>
+</div>
+
+<!-- Delete confirmation popup -->
+<div class="modal-overlay" id="deleteModal">
+    <div class="modal" style="max-width:400px;">
+        <div class="modal-header">
+            <h3>Delete Ingredient</h3>
+            <button type="button" class="modal-close"
+                onclick="closeModal('deleteModal')">&times;</button>
+        </div>
+
+        <div class="modal-body">
+            <p id="deleteMessage">
+                Are you sure you want to delete this ingredient?
+            </p>
+        </div>
+
+        <div class="modal-footer">
+            <button type="button" class="btn-delete"
+                onclick="confirmDelete()">Delete</button>
+            <button type="button" class="btn-secondary"
+                onclick="closeModal('deleteModal')">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<!-- Dark notification -->
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+const STORAGE_KEY = "sweetbites_ingredient_inventory";
+
+/* Default ingredient data for first visit */
+const defaultIngredients = [
+    {
+        id: 1,
+        name: "Flour",
+        category: "Baking",
+        quantity: 25,
+        unit: "KG",
+        expiry: "2026-12-15"
+    },
+    {
+        id: 2,
+        name: "Sugar",
+        category: "Sweeteners",
+        quantity: 8,
+        unit: "KG",
+        expiry: "2027-01-20"
+    },
+    {
+        id: 3,
+        name: "Butter",
+        category: "Dairy",
+        quantity: 5,
+        unit: "KG",
+        expiry: "2026-10-20"
+    }
+];
+
+let ingredients = loadIngredients();
+let selectedId = null;
+let deleteId = null;
+let toastTimer;
+
+/* Load saved ingredients from browser storage */
+function loadIngredients() {
+    try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+
+        if (saved !== null) {
+            const data = JSON.parse(saved);
+
+            if (Array.isArray(data)) {
+                return data;
+            }
+        }
+    } catch (error) {
+        console.error("Could not load ingredients:", error);
+    }
+
+    return defaultIngredients.map(item => ({ ...item }));
+}
+
+/* Save ingredient data to browser storage */
+function saveIngredients() {
+    try {
+        localStorage.setItem(
+            STORAGE_KEY,
+            JSON.stringify(ingredients)
+        );
+        return true;
+    } catch (error) {
+        alert("Unable to save data in this browser.");
+        return false;
+    }
+}
+
+/* Prevent text from being treated as HTML */
+function escapeHTML(value) {
+    return String(value).replace(/[&<>"']/g, char => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;"
+    })[char]);
+}
+
+/* Check ingredient expiry and stock quantity */
+function getStatus(item) {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    if (
+        item.expiry &&
+        new Date(item.expiry + "T00:00:00") < today
+    ) {
+        return "Expired";
+    }
+
+    return Number(item.quantity) <= 10
+        ? "Low Stock"
+        : "Available";
+}
+
+/* Set the status label colour */
+function statusClass(status) {
+    return status === "Expired"
+        ? "status-expired"
+        : status === "Low Stock"
+        ? "status-low"
+        : "status-available";
+}
+
+/* Change date format to DD/MM/YYYY */
+function formatDate(date) {
+    if (!date) return "-";
+
+    const parts = date.split("-");
+
+    return parts.length === 3
+        ? `${parts[2]}/${parts[1]}/${parts[0]}`
+        : escapeHTML(date);
+}
+
+/* Display ingredient records and update summaries */
+function renderIngredients() {
+    const search = document
+        .getElementById("searchInput")
+        .value.toLowerCase().trim();
+
+    const filter = document.getElementById("statusFilter").value;
+
+    const filtered = ingredients.filter(item =>
+        (item.name + " " + item.category)
+            .toLowerCase().includes(search) &&
+        (filter === "all" || getStatus(item) === filter)
+    );
+
+    document.getElementById("ingredientTable").innerHTML =
+        filtered.map(item => {
+            const status = getStatus(item);
+            const id = Number(item.id);
+
+            return `
+                <tr>
+                    <td>${escapeHTML(item.name)}</td>
+                    <td>${escapeHTML(item.category)}</td>
+                    <td>${escapeHTML(item.quantity)}</td>
+                    <td>${escapeHTML(item.unit)}</td>
+                    <td>${formatDate(item.expiry)}</td>
+                    <td>
+                        <span class="status ${statusClass(status)}">
+                            ${status}
+                        </span>
+                    </td>
+                    <td>
+                        <div class="actions">
+                            <button type="button"
+                                class="btn-primary"
+                                onclick="viewIngredient(${id})">
+                                View
+                            </button>
+
+                            <button type="button"
+                                class="btn-primary"
+                                onclick="editIngredient(${id})">
+                                Edit
+                            </button>
+
+                            <button type="button"
+                                class="btn-delete"
+                                onclick="askDelete(${id})">
+                                Delete
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        }).join("");
+
+    document.getElementById("emptyMessage").style.display =
+        filtered.length ? "none" : "block";
+
+    document.getElementById("resultCount").textContent =
+        filtered.length;
+
+    document.getElementById("totalCount").textContent =
+        ingredients.length;
+
+    document.getElementById("lowStockCount").textContent =
+        ingredients.filter(
+            item => getStatus(item) === "Low Stock"
+        ).length;
+
+    document.getElementById("expiredCount").textContent =
+        ingredients.filter(
+            item => getStatus(item) === "Expired"
+        ).length;
+}
+
+/* Open a blank form to add an ingredient */
+function openAddModal() {
+    document.getElementById("ingredientForm").reset();
+    document.getElementById("ingredientId").value = "";
+    document.getElementById("modalTitle").textContent =
+        "Add Ingredient";
+
+    document.getElementById("ingredientModal")
+        .classList.add("active");
+}
+
+/* Open an existing ingredient for editing */
+function editIngredient(id) {
+    const item = ingredients.find(
+        item => Number(item.id) === Number(id)
+    );
+
+    if (!item) return;
+
+    closeModal("viewModal");
+
+    document.getElementById("ingredientId").value = item.id;
+    document.getElementById("ingredientName").value = item.name;
+    document.getElementById("ingredientCategory").value =
+        item.category;
+    document.getElementById("ingredientQuantity").value =
+        item.quantity;
+    document.getElementById("ingredientUnit").value = item.unit;
+    document.getElementById("ingredientExpiry").value = item.expiry;
+
+    document.getElementById("modalTitle").textContent =
+        "Edit Ingredient";
+
+    document.getElementById("ingredientModal")
+        .classList.add("active");
+}
+
+/* Save a new ingredient or update an existing ingredient */
+document.getElementById("ingredientForm")
+    .addEventListener("submit", function(event) {
+        event.preventDefault();
+
+        const id = document.getElementById("ingredientId").value;
+        const name = document.getElementById("ingredientName")
+            .value.trim();
+        const category = document.getElementById("ingredientCategory")
+            .value;
+        const quantityInput = document.getElementById(
+            "ingredientQuantity"
+        ).value;
+        const quantity = Number(quantityInput);
+        const unit = document.getElementById("ingredientUnit").value;
+        const expiry = document.getElementById("ingredientExpiry").value;
+
+        if (
+            !name ||
+            !expiry ||
+            quantityInput === "" ||
+            !Number.isFinite(quantity) ||
+            quantity < 0
+        ) {
+            alert("Please enter valid ingredient information.");
+            return;
+        }
+
+        /* Prevent duplicate ingredient names */
+        if (ingredients.some(item =>
+            item.name.toLowerCase() === name.toLowerCase() &&
+            String(item.id) !== id
+        )) {
+            alert("This ingredient already exists.");
+            return;
+        }
+
+        const previous = ingredients.map(item => ({ ...item }));
+
+        if (id) {
+            ingredients = ingredients.map(item =>
+                Number(item.id) === Number(id)
+                    ? {
+                        ...item,
+                        name,
+                        category,
+                        quantity,
+                        unit,
+                        expiry
+                    }
+                    : item
+            );
+        } else {
+            ingredients.push({
+                id: Date.now(),
+                name,
+                category,
+                quantity,
+                unit,
+                expiry
+            });
+        }
+
+        if (!saveIngredients()) {
+            ingredients = previous;
+            renderIngredients();
+            return;
+        }
+
+        renderIngredients();
+        closeModal("ingredientModal");
+
+        showToast(
+            id
+                ? "Ingredient updated successfully."
+                : "Ingredient added successfully."
+        );
+    });
+
+/* Display detailed information for an ingredient */
+function viewIngredient(id) {
+    const item = ingredients.find(
+        item => Number(item.id) === Number(id)
+    );
+
+    if (!item) return;
+
+    selectedId = item.id;
+    const status = getStatus(item);
+
+    const details = [
+        ["Ingredient Name", escapeHTML(item.name)],
+        ["Category", escapeHTML(item.category)],
+        ["Quantity", escapeHTML(item.quantity)],
+        ["Unit", escapeHTML(item.unit)],
+        ["Expiry Date", formatDate(item.expiry)],
+        [
+            "Stock Status",
+            `<span class="status ${statusClass(status)}">${status}</span>`
+        ]
+    ];
+
+    document.getElementById("ingredientDetails").innerHTML =
+        details.map(row => `
+            <div class="detail-row">
+                <div class="detail-label">${row[0]}</div>
+                <div class="detail-value">${row[1]}</div>
+            </div>
+        `).join("");
+
+    document.getElementById("editFromView").onclick =
+        () => editIngredient(selectedId);
+
+    document.getElementById("viewModal")
+        .classList.add("active");
+}
+
+/* Ask for confirmation before deleting */
+function askDelete(id) {
+    const item = ingredients.find(
+        item => Number(item.id) === Number(id)
+    );
+
+    if (!item) return;
+
+    deleteId = item.id;
+
+    document.getElementById("deleteMessage").textContent =
+        `Are you sure you want to delete ${item.name}?`;
+
+    document.getElementById("deleteModal")
+        .classList.add("active");
+}
+
+/* Delete the selected ingredient */
+function confirmDelete() {
+    if (deleteId === null) return;
+
+    const previous = ingredients.map(item => ({ ...item }));
+
+    ingredients = ingredients.filter(
+        item => Number(item.id) !== Number(deleteId)
+    );
+
+    if (!saveIngredients()) {
+        ingredients = previous;
+        renderIngredients();
+        return;
+    }
+
+    renderIngredients();
+    closeModal("deleteModal");
+    deleteId = null;
+
+    showToast("Ingredient deleted successfully.");
+}
+
+/* Close a popup */
+function closeModal(id) {
+    document.getElementById(id).classList.remove("active");
+
+    if (id === "deleteModal") {
+        deleteId = null;
+    }
+}
+
+/* Close a popup when clicking outside it */
+document.querySelectorAll(".modal-overlay").forEach(overlay => {
+    overlay.addEventListener("click", event => {
+        if (event.target === overlay) {
+            closeModal(overlay.id);
+        }
+    });
+});
+
+/* Close popup forms with the Escape key */
+document.addEventListener("keydown", event => {
+    if (event.key === "Escape") {
+        document.querySelectorAll(".modal-overlay.active")
+            .forEach(modal => closeModal(modal.id));
+    }
+});
+
+/* Show a dark notification at the top of the screen */
+function showToast(message) {
+    const toast = document.getElementById("toast");
+
+    toast.textContent = message;
+    toast.classList.add("show");
+
+    clearTimeout(toastTimer);
+
+    toastTimer = setTimeout(() => {
+        toast.classList.remove("show");
+    }, 2500);
+}
+
+/* Display the ingredient list when the page loads */
+renderIngredients();
+</script>
+
+</body>
+</html>
