@@ -4,39 +4,252 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SweetBites - Add Supplier</title>
-    <link rel="stylesheet" href="Style/admin_style.css">
+    <style>
+      * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Arial, sans-serif; }
+      body { background: #F5F5F5; color: #333; }
+
+      /* ---------- Top Navigation ---------- */
+      .navbar {
+        background: white;
+        padding: 12px 26px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid #EEE;
+        position: sticky;
+        top: 0;
+        z-index: 50;
+      }
+      .navbar .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .navbar .brand .logo-box {
+        width: 38px;
+        height: 38px;
+        background: #6E2C4A;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        color: white;
+      }
+      .navbar .brand .brand-text .name {
+        font-size: 15px;
+        font-weight: 700;
+        color: #4A1F33;
+        line-height: 1.1;
+      }
+      .navbar .brand .brand-text .sub {
+        font-size: 10.5px;
+        color: #999;
+        margin-top: 1px;
+      }
+
+      .navbar .user {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .navbar .user .avatar {
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        background: #6E2C4A;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 13px;
+        font-weight: 700;
+      }
+      .navbar .user .info {
+        text-align: right;
+        font-size: 12px;
+        line-height: 1.3;
+      }
+      .navbar .user .info .role { color: #333; font-weight: 600; }
+      .navbar .user .info .name { color: #999; }
+
+      /* ---------- Layout ---------- */
+      .dashboard { display: flex; min-height: calc(100vh - 63px); }
+
+      .sidebar {
+        width: 190px;
+        background: white;
+        border-right: 1px solid #EEE;
+        padding: 22px 0;
+        flex-shrink: 0;
+      }
+      .sidebar a {
+        display: block;
+        padding: 12px 22px;
+        font-size: 13.5px;
+        color: #666;
+        text-decoration: none;
+        border-left: 3px solid transparent;
+        transition: 0.15s;
+      }
+      .sidebar a.active {
+        color: #4A1F33;
+        font-weight: 600;
+        border-left-color: #6E2C4A;
+        background: #F7F0F3;
+      }
+      .sidebar a:hover { background: #FAF5F7; }
+
+      /* ---------- Main ---------- */
+      .main-content {
+        flex: 1;
+        padding: 26px 32px 40px;
+      }
+
+      /* Page header */
+      .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 20px;
+        margin-bottom: 22px;
+        flex-wrap: wrap;
+      }
+      .page-header h2 {
+        font-size: 22px;
+        font-weight: 700;
+        color: #4A1F33;
+        margin-bottom: 4px;
+      }
+      .page-header p { font-size: 12.5px; color: #999; }
+
+      /* Form Card */
+      .form-card {
+        background: white;
+        border-radius: 10px;
+        border: 1px solid #EEE;
+        padding: 24px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+        max-width: 700px;
+      }
+
+      .form-group {
+        margin-bottom: 16px;
+      }
+      .form-group label {
+        display: block;
+        font-size: 12px;
+        font-weight: 600;
+        color: #666;
+        margin-bottom: 6px;
+      }
+      .form-group input,
+      .form-group select,
+      .form-group textarea {
+        width: 100%;
+        padding: 9px 12px;
+        border: 1px solid #E5E5E5;
+        border-radius: 6px;
+        font-size: 13px;
+        background: #FAFAFA;
+        color: #333;
+        transition: 0.2s;
+        font-family: inherit;
+      }
+      .form-group input:focus,
+      .form-group select:focus,
+      .form-group textarea:focus {
+        outline: none;
+        border-color: #6E2C4A;
+        background: white;
+        box-shadow: 0 0 0 3px rgba(110,44,74,0.1);
+      }
+      .form-group textarea { resize: vertical; }
+
+      /* Action Buttons */
+      .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        padding-top: 16px;
+        border-top: 1px solid #F2F2F2;
+        margin-top: 20px;
+      }
+      .cancel-button {
+        background: white;
+        color: #666;
+        border: 1px solid #DDD;
+        padding: 9px 20px;
+        border-radius: 6px;
+        font-size: 12.5px;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        transition: 0.2s;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .cancel-button:hover { background: #F5F5F5; border-color: #BBB; }
+      .save-button {
+        background: #6E2C4A;
+        color: white;
+        border: none;
+        padding: 9px 20px;
+        border-radius: 6px;
+        font-size: 12.5px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: 0.2s;
+      }
+      .save-button:hover { background: #5A2139; }
+
+      @media (max-width: 900px) {
+        .sidebar { display: none; }
+        .main-content { padding: 20px; }
+      }
+    </style>
 </head>
 <body>
+
+<!-- Top Navigation -->
+<div class="navbar">
+  <div class="brand">
+    <div class="logo-box">🎂</div>
+    <div class="brand-text">
+      <div class="name">SweetBites</div>
+      <div class="sub">Inventory System</div>
+    </div>
+  </div>
+  <div class="user">
+    <div class="avatar">A</div>
+    <div class="info">
+      <div class="role">Administrator</div>
+      <div class="name">Admin</div>
+    </div>
+  </div>
+</div>
 
     <div class="dashboard">
 
         <!-- SIDEBAR -->
         <aside class="sidebar">
-            <!-- LOGO -->
-            <div class="logo">
-                <div class="logo-icon">🍰</div>
-                <div>
-                    <h2>SweetBites</h2>
-                    <p>Inventory System</p>
-                </div>
-            </div>
-
             <!-- NAVIGATION -->
             <nav>
                 <a href="admin_dashboard.html" class="nav-item">
-                    <span>⌂</span> Dashboard
+                     Dashboard
                 </a>
-                <a href="#" class="nav-item">
-                    <span>🥣</span> Ingredient Stock
+                <a href="admin_ingredient.html" class="nav-item">
+                    Ingredient Stock
                 </a>
                 <a href="supplier.html" class="nav-item active">
-                    <span>🚚</span> Supplier
+                     Supplier
                 </a>
-                <a href="#" class="nav-item">
-                    <span>📋</span> Purchasing Order
+                <a href="admin_purchase_orders.html" class="nav-item">
+                     Purchasing Order
                 </a>
                 <a href="admin_catalog.html" class="nav-item">
-                    <span>🎂</span> Product Catalog
+                     Product Catalog
                 </a>
             </nav>
         </aside>
@@ -44,23 +257,8 @@
         <!-- MAIN CONTENT -->
         <main class="main-content">
 
-            <!-- TOP BAR -->
-            <header class="topbar">
-                <div>
-                    <h1>Add New Supplier</h1>
-                    <p>Add supplier information to SweetBites</p>
-                </div>
-                <div class="admin-profile">
-                    <div class="profile-circle">A</div>
-                    <div>
-                        <strong>Administrator</strong>
-                        <small>Admin</small>
-                    </div>
-                </div>
-            </header>
-
             <!-- CONTENT -->
-            <section class="content">
+            <section class="content" style="padding:0;">
 
                 <!-- PAGE HEADER -->
                 <div class="page-header">
