@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Delete Purchase Order - SweetBites</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Arial, sans-serif; }
+  body { background: #F5F5F5; color: #333; }
+  .navbar { background: white; padding: 12px 26px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #EEE; }
+  .brand, .user { display: flex; align-items: center; gap: 10px; }
+  .logo-box, .avatar { width: 38px; height: 38px; background: #6E2C4A; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; }
+  .logo-box { font-size: 18px; }
+  .avatar { width: 34px; height: 34px; border-radius: 50%; font-size: 13px; font-weight: 700; }
+  .brand-text .name { font-size: 15px; font-weight: 700; color: #4A1F33; }
+  .brand-text .sub, .user .name { font-size: 10.5px; color: #999; }
+  .user .info { text-align: right; font-size: 12px; }
+  .user .role { font-weight: 600; }
+  .layout { display: flex; min-height: calc(100vh - 63px); }
+  .sidebar { width: 190px; background: white; border-right: 1px solid #EEE; padding: 22px 0; flex-shrink: 0; }
+  .sidebar a { display: block; padding: 12px 22px; color: #666; text-decoration: none; font-size: 13.5px; border-left: 3px solid transparent; }
+  .sidebar a.active { color: #4A1F33; font-weight: 600; border-left-color: #6E2C4A; background: #F7F0F3; }
+  .main { flex: 1; padding: 24px 30px; }
+  .back { display: inline-block; color: #6E2C4A; text-decoration: none; font-size: 12.5px; margin-bottom: 12px; }
+  h1 { color: #4A1F33; font-size: 22px; margin-bottom: 4px; }
+  .subtitle { color: #999; font-size: 12.5px; margin-bottom: 18px; }
+  .card { max-width: 620px; background: white; border: 1px solid #EEE; border-radius: 10px; padding: 24px; }
+  .warning { color: #8B302D; font-size: 14px; line-height: 1.6; margin-bottom: 10px; }
+  .order-summary { color: #666; font-size: 13px; line-height: 1.7; margin-bottom: 20px; }
+  .actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 9px; }
+  .btn { display: inline-block; border: 0; border-radius: 6px; padding: 9px 16px; cursor: pointer; font-size: 12.5px; font-weight: 600; text-decoration: none; }
+  .btn-light { color: #6E2C4A; background: white; border: 1px solid #EDE3E7; }
+  .btn-danger { color: white; background: #B42318; }
+  .message { display: none; padding: 12px 14px; margin-bottom: 14px; color: #8B302D; background: #FCEDEC; border-radius: 6px; font-size: 13px; }
+  .message.visible { display: block; }
+  @media (max-width: 900px) { .sidebar { display: none; } .main { padding: 18px 20px; } }
+  @media (max-width: 600px) { .main { padding: 14px 12px; } .user .info { display: none; } .card { padding: 18px 14px; } }
+</style>
+</head>
+<body>
+<div class="navbar">
+  <div class="brand"><div class="logo-box">🎂</div><div class="brand-text"><div class="name">SweetBites</div><div class="sub">Inventory System</div></div></div>
+  <div class="user"><div class="avatar">A</div><div class="info"><div class="role">Administrator</div><div class="name">Admin</div></div></div>
+</div>
+<div class="layout">
+  <aside class="sidebar">
+    <a href="admin_dashboard.html">Dashboard</a><a href="#">Ingredient Stock</a><a href="#">Supplier</a>
+    <a href="admin_purchase_orders.html" class="active" aria-current="page">Purchase Order</a><a href="admin_catalog.html">Product Catalog</a>
+  </aside>
+  <main class="main">
+    <a class="back" href="admin_purchase_orders.html">&larr; Back to Purchase Order List</a>
+    <h1>Delete Purchase Order</h1><p class="subtitle">Confirm removal of an incorrect or unneeded order.</p>
+    <div id="message" class="message" role="alert"></div>
+    <section class="card">
+      <p class="warning">Are you sure you want to delete this purchase order? This action cannot be undone.</p>
+      <div id="orderSummary" class="order-summary"></div>
+      <div class="actions">
+        <a id="cancelLink" class="btn btn-light" href="admin_purchase_orders.html">Cancel</a>
+        <button id="confirmDelete" class="btn btn-danger" type="button">Delete Purchase Order</button>
+      </div>
+    </section>
+  </main>
+</div>
+<script>
+window.PurchaseOrderStore = (function() {
+  const key = 'sweetbites.purchaseOrders';
+  function load() {
+    const saved = localStorage.getItem(key);
+    const orders = saved === null ? [] : JSON.parse(saved);
+    if (!Array.isArray(orders)) throw new Error('Saved purchase orders have an invalid format.');
+    return orders;
+  }
+  function save(orders) { localStorage.setItem(key, JSON.stringify(orders)); }
+  function total(order) {
+    return order.items.reduce(function(sum, item) { return sum + Number(item.quantity) * Number(item.unitPrice || 0); }, 0);
+  }
+  function formatDate(date) {
+    return date ? new Date(date + 'T00:00:00').toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' }) : '—';
+  }
+  return {
+    load: load, save: save, total: total,
+    formatAmount: function(amount) { return 'RM ' + amount.toFixed(2); },
+    formatDate: formatDate
+  };
+})();
+</script>
+<script>
+  const message = document.getElementById('message');
+  const id = new URLSearchParams(window.location.search).get('id');
+  let orders = [];
+  try {
+    orders = window.PurchaseOrderStore.load();
+    const order = orders.find(function(item) { return item.id === id; });
+    if (!order) throw new Error('Purchase order ' + id + ' was not found.');
+    document.getElementById('orderSummary').textContent = order.id + ' | ' + order.supplier + ' | ' + window.PurchaseOrderStore.formatDate(order.orderDate) + ' | ' + window.PurchaseOrderStore.formatAmount(window.PurchaseOrderStore.total(order));
+    document.getElementById('confirmDelete').addEventListener('click', function() {
+      const updatedOrders = orders.filter(function(item) { return item.id !== order.id; });
+      try {
+        window.PurchaseOrderStore.save(updatedOrders);
+        window.location.href = 'admin_purchase_orders.html';
+      } catch (error) {
+        message.textContent = 'Could not delete the purchase order. Check that browser storage is available, then try again.';
+        message.classList.add('visible');
+      }
+    });
+  } catch (error) {
+    message.textContent = 'Purchase order could not be loaded: ' + error.message;
+    message.classList.add('visible');
+    document.getElementById('confirmDelete').disabled = true;
+  }
+</script>
+</body>
+</html>

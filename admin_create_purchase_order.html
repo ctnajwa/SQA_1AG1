@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Create Purchase Order - SweetBites</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Arial, sans-serif; }
+  [hidden] { display: none !important; }
+  body { background: #F5F5F5; color: #333; }
+  .navbar { background: white; padding: 12px 26px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #EEE; position: sticky; top: 0; z-index: 50; }
+  .brand, .user { display: flex; align-items: center; gap: 10px; }
+  .logo-box, .avatar { width: 38px; height: 38px; background: #6E2C4A; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; }
+  .logo-box { font-size: 18px; }
+  .brand-text .name { font-size: 15px; font-weight: 700; color: #4A1F33; line-height: 1.1; }
+  .brand-text .sub { font-size: 10.5px; color: #999; margin-top: 1px; }
+  .avatar { width: 34px; height: 34px; border-radius: 50%; font-size: 13px; font-weight: 700; }
+  .user .info { text-align: right; font-size: 12px; line-height: 1.3; }
+  .user .role { color: #333; font-weight: 600; }
+  .user .name { color: #999; }
+  .layout { display: flex; min-height: calc(100vh - 63px); }
+  .sidebar { width: 190px; background: white; border-right: 1px solid #EEE; padding: 22px 0; flex-shrink: 0; }
+  .sidebar a { display: block; padding: 12px 22px; font-size: 13.5px; color: #666; text-decoration: none; border-left: 3px solid transparent; }
+  .sidebar a.active { color: #4A1F33; font-weight: 600; border-left-color: #6E2C4A; background: #F7F0F3; }
+  .sidebar a:hover { background: #FAF5F7; }
+  .main { flex: 1; padding: 20px 28px 30px; max-width: 1100px; min-width: 0; }
+  .breadcrumb { font-size: 12.5px; color: #999; margin-bottom: 14px; }
+  .breadcrumb a { color: #6E2C4A; text-decoration: none; }
+  .breadcrumb a:hover { text-decoration: underline; }
+  .page-header { margin-bottom: 14px; }
+  .page-header h1 { font-size: 22px; color: #4A1F33; margin-bottom: 4px; }
+  .page-header p { font-size: 12.5px; color: #999; }
+  .card { background: white; border: 1px solid #EEE; border-radius: 10px; padding: 16px 18px; box-shadow: 0 1px 3px rgba(0,0,0,.03); margin-bottom: 12px; }
+  .card h2 { color: #4A1F33; font-size: 15px; margin-bottom: 12px; }
+  .form-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px 16px; }
+  .form-group { display: flex; flex-direction: column; gap: 7px; }
+  .form-group label { color: #555; font-size: 12.5px; font-weight: 600; }
+  .required { color: #C62828; }
+  input, select, textarea { width: 100%; border: 1px solid #DDD; border-radius: 6px; padding: 8px 10px; font-size: 12.5px; color: #333; background: white; min-width: 0; }
+  textarea { min-height: 54px; resize: vertical; }
+  input:focus, select:focus, button:focus-visible, a:focus-visible { outline: 2px solid #6E2C4A; outline-offset: 2px; border-color: #6E2C4A; }
+  .remarks-group { grid-column: 1 / -1; }
+  .item-entry { display: grid; grid-template-columns: minmax(155px, 1.4fr) minmax(85px, .7fr) minmax(85px, .65fr) minmax(105px, .8fr) auto; gap: 10px; align-items: end; padding: 12px; background: #FCF5F8; border-radius: 8px; margin-bottom: 12px; }
+  .item-entry .form-group { gap: 5px; }
+  .item-entry label { font-size: 11px; }
+  .table-wrap { overflow-x: auto; }
+  .items-table { width: 100%; border-collapse: collapse; min-width: 560px; }
+  .items-table th, .items-table td { padding: 8px 10px; text-align: left; border-bottom: 1px solid #F0E8EC; font-size: 12px; }
+  .items-table th { color: #6E2C4A; background: #FCF5F8; font-size: 11px; }
+  .items-table tfoot td { background: #FCF5F8; font-weight: 700; }
+  .items-table .amount { text-align: right; }
+  .item-empty { color: #888; text-align: center !important; padding: 16px !important; }
+  .remove-item { border: 1px solid #F4D9D8; border-radius: 6px; background: #FCEDEC; color: #B42318; cursor: pointer; min-width: 32px; height: 30px; font-size: 16px; }
+  .remove-item:hover { background: #FCEDEC; }
+  .btn { display: inline-block; border: 0; border-radius: 6px; padding: 9px 16px; cursor: pointer; font-size: 12.5px; font-weight: 600; text-decoration: none; text-align: center; }
+  .btn-primary { background: #6E2C4A; color: white; }
+  .btn-primary:hover { background: #5A2139; }
+  .btn-light { border: 1px solid #EDE3E7; color: #6E2C4A; background: white; }
+  .btn-light:hover { background: #F7F0F3; }
+  .add-item { height: 36px; white-space: nowrap; }
+  .total-amount { color: #6E2C4A; font-size: 14px; }
+  .form-actions { display: flex; justify-content: flex-end; gap: 10px; }
+  .message { display: none; padding: 12px 14px; margin-bottom: 16px; background: #FCEDEC; color: #8B302D; border-radius: 6px; font-size: 13px; }
+  .message.visible { display: block; }
+  @media (max-width: 900px) {
+    .sidebar { display: none; }
+    .navbar { padding: 8px 16px; }
+    .main { max-width: none; padding: 10px 16px 22px; }
+    .page-header { margin-bottom: 9px; }
+    .page-header h1 { font-size: 20px; }
+    .page-header p { font-size: 11.5px; }
+    .card { padding: 12px 14px; margin-bottom: 9px; }
+    .card h2 { margin-bottom: 9px; }
+    .form-grid { gap: 8px 12px; }
+    .form-group { gap: 4px; }
+    textarea { min-height: 42px; }
+    .item-entry { padding: 8px; gap: 7px; }
+    .items-table th, .items-table td { padding: 6px 7px; }
+    .form-actions { position: sticky; bottom: 0; background: #F5F5F5; padding: 9px 0; z-index: 5; }
+  }
+  @media (max-width: 600px) {
+    .navbar { padding: 10px 14px; }
+    .main { padding: 14px 12px 22px; }
+    .user .info { display: none; }
+    .form-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+    .item-entry { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .item-entry .add-item { grid-column: 1 / -1; }
+    .card { padding: 14px 12px; }
+    .form-actions { position: sticky; bottom: 0; background: #F5F5F5; padding: 10px 0; z-index: 5; }
+  }
+  @media (max-width: 380px) { .form-grid { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div class="navbar">
+  <div class="brand"><div class="logo-box">🎂</div><div class="brand-text"><div class="name">SweetBites</div><div class="sub">Inventory System</div></div></div>
+  <div class="user"><div class="avatar">A</div><div class="info"><div class="role">Administrator</div><div class="name">Admin</div></div></div>
+</div>
+<div class="layout">
+  <aside class="sidebar">
+    <a href="admin_dashboard.html">Dashboard</a>
+    <a href="#">Ingredient Stock</a>
+    <a href="#">Supplier</a>
+    <a href="admin_purchase_orders.html" class="active" aria-current="page">Purchase Order</a>
+    <a href="admin_catalog.html">Product Catalog</a>
+  </aside>
+  <main class="main">
+    <div class="breadcrumb"><a href="admin_purchase_orders.html">&larr; Back to Purchase Order List</a></div>
+    <header class="page-header"><h1 id="pageTitle">Create Purchase Order</h1><p id="pageDescription">Select a supplier, schedule delivery, and add ingredient quantities and prices.</p></header>
+    <div id="message" class="message" role="alert"></div>
+    <form id="orderForm">
+      <section class="card">
+        <h2>Order Information</h2>
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="supplier">Supplier <span class="required">*</span></label>
+            <select id="supplier" required>
+              <option value="">Select a supplier</option>
+              <option>Baker Supply Co.</option><option>Fresh Dairy Traders</option><option>Cocoa &amp; More</option><option>Market Fresh Produce</option>
+              <option>Kirthana Supplies</option><option>Baker's Mart</option><option>Fresh Dairy Sdn Bhd</option><option>Sugar &amp; Flour Trading</option>
+              <option>Daily Ingredients Co.</option><option>Cake Supplies MY</option><option>Happy Baking Sdn Bhd</option><option>TasteWell Supplier</option>
+            </select>
+          </div>
+          <div class="form-group"><label for="orderDate">Order Date <span class="required">*</span></label><input id="orderDate" type="date" required></div>
+          <div class="form-group"><label for="expectedDate">Expected Date <span class="required">*</span></label><input id="expectedDate" type="date" required></div>
+          <div class="form-group" id="statusGroup" hidden>
+            <label for="status">Status <span class="required">*</span></label>
+            <select id="status" required><option>Pending</option><option>Processing</option><option>Ordered</option><option>Received</option><option>Cancelled</option></select>
+          </div>
+          <div class="form-group remarks-group"><label for="remarks">Remarks</label><textarea id="remarks" placeholder="Enter remarks (optional)"></textarea></div>
+        </div>
+      </section>
+      <section class="card">
+        <h2>Add Ingredients <span class="required">*</span></h2>
+        <div class="item-entry">
+          <div class="form-group"><label for="entryIngredient">Ingredient</label><select id="entryIngredient"><option value="">Select ingredient</option></select></div>
+          <div class="form-group"><label for="entryQuantity">Quantity</label><input id="entryQuantity" type="number" min="0.01" step="any" placeholder="Quantity"></div>
+          <div class="form-group"><label for="entryUnit">Unit</label><select id="entryUnit"><option>kg</option><option>g</option><option>L</option><option>ml</option><option>pcs</option></select></div>
+          <div class="form-group"><label for="entryUnitPrice">Unit Price (RM)</label><input id="entryUnitPrice" type="number" min="0" step="0.01" placeholder="0.00"></div>
+          <button type="button" id="addItem" class="btn btn-primary add-item">+ Add</button>
+        </div>
+        <div class="table-wrap">
+          <table class="items-table">
+            <thead><tr><th>No.</th><th>Ingredient</th><th>Quantity</th><th>Unit</th><th>Unit Price (RM)</th><th>Total (RM)</th><th>Action</th></tr></thead>
+            <tbody id="ingredientRows"><tr><td colspan="7" class="item-empty">No ingredients added yet.</td></tr></tbody>
+            <tfoot><tr><td colspan="5" class="amount">Total Amount</td><td class="amount total-amount" id="totalAmount">RM 0.00</td><td></td></tr></tfoot>
+          </table>
+        </div>
+      </section>
+      <div class="form-actions"><a href="admin_purchase_orders.html" class="btn btn-light">Cancel</a><button type="submit" class="btn btn-primary" id="saveButton">Create Purchase Order</button></div>
+    </form>
+  </main>
+</div>
+<script>
+(function() {
+  const storageKey = 'sweetbites.purchaseOrders';
+  const sampleOrders = [
+    { id: 'PO-2026015', supplier: 'Kirthana Supplies', orderDate: '2026-10-10', expectedDate: '2026-10-15', status: 'Pending', remarks: '', items: [{ ingredient: 'All-purpose flour', quantity: 10, unit: 'kg', unitPrice: 4.5 }, { ingredient: 'Unsalted butter', quantity: 5, unit: 'kg', unitPrice: 15 }, { ingredient: 'Eggs', quantity: 20, unit: 'pcs', unitPrice: 1.25 }] },
+    { id: 'PO-2026014', supplier: "Baker's Mart", orderDate: '2026-10-05', expectedDate: '2026-10-08', status: 'Received', remarks: '', items: [{ ingredient: 'All-purpose flour', quantity: 20, unit: 'kg', unitPrice: 5 }, { ingredient: 'Caster sugar', quantity: 10, unit: 'kg', unitPrice: 5.05 }] },
+    { id: 'PO-2026013', supplier: 'Fresh Dairy Sdn Bhd', orderDate: '2026-10-01', expectedDate: '2026-10-04', status: 'Processing', remarks: '', items: [{ ingredient: 'Unsalted butter', quantity: 10, unit: 'kg', unitPrice: 15 }, { ingredient: 'Eggs', quantity: 100, unit: 'pcs', unitPrice: 1.3 }] },
+    { id: 'PO-2026012', supplier: 'Sugar & Flour Trading', orderDate: '2026-09-28', expectedDate: '2026-10-03', status: 'Cancelled', remarks: '', items: [{ ingredient: 'Caster sugar', quantity: 20, unit: 'kg', unitPrice: 6 }, { ingredient: 'All-purpose flour', quantity: 10, unit: 'kg', unitPrice: 7 }] },
+    { id: 'PO-2026011', supplier: 'Daily Ingredients Co.', orderDate: '2026-09-20', expectedDate: '2026-09-25', status: 'Received', remarks: '', items: [{ ingredient: 'Heavy cream', quantity: 10, unit: 'L', unitPrice: 16 }, { ingredient: 'Unsalted butter', quantity: 20, unit: 'kg', unitPrice: 15 }, { ingredient: 'Eggs', quantity: 100, unit: 'pcs', unitPrice: 1.05 }] },
+    { id: 'PO-2026010', supplier: 'Cake Supplies MY', orderDate: '2026-09-15', expectedDate: '2026-09-18', status: 'Pending', remarks: '', items: [{ ingredient: 'Vanilla extract', quantity: 2, unit: 'L', unitPrice: 42.5 }] },
+    { id: 'PO-2026009', supplier: 'Happy Baking Sdn Bhd', orderDate: '2026-09-10', expectedDate: '2026-09-12', status: 'Received', remarks: '', items: [{ ingredient: 'All-purpose flour', quantity: 100, unit: 'kg', unitPrice: 4.5 }, { ingredient: 'Caster sugar', quantity: 40, unit: 'kg', unitPrice: 6 }, { ingredient: 'Eggs', quantity: 100, unit: 'pcs', unitPrice: 1.1 }] },
+    { id: 'PO-2026008', supplier: 'TasteWell Supplier', orderDate: '2026-09-01', expectedDate: '2026-09-05', status: 'Processing', remarks: '', items: [{ ingredient: 'Cocoa powder', quantity: 10, unit: 'kg', unitPrice: 18 }, { ingredient: 'Cream cheese', quantity: 10, unit: 'kg', unitPrice: 14 }] }
+  ];
+  const store = {
+    load: function() {
+      const value = localStorage.getItem(storageKey);
+      if (value === null) {
+        this.save(sampleOrders);
+        return sampleOrders;
+      }
+      const orders = JSON.parse(value);
+      if (!Array.isArray(orders)) throw new Error('Saved purchase orders have an invalid format.');
+      const prices = { 'All-purpose flour': 4.5, 'Caster sugar': 5.2, 'Unsalted butter': 15, Eggs: 0.8, 'Cocoa powder': 18, 'Vanilla extract': 32, 'Cream cheese': 22, 'Heavy cream': 16, 'Fresh strawberries': 12 };
+      orders.forEach(function(order) {
+        if (!order || typeof order.id !== 'string' || !Array.isArray(order.items)) throw new Error('A saved purchase order has invalid data.');
+        order.expectedDate = order.expectedDate || order.orderDate;
+        order.remarks = order.remarks || '';
+        order.items.forEach(function(item) {
+          if (!item || typeof item.ingredient !== 'string') throw new Error('A saved purchase order has invalid ingredient data.');
+          item.unit = item.unit || 'kg';
+          item.unitPrice = Number.isFinite(Number(item.unitPrice)) ? Number(item.unitPrice) : (prices[item.ingredient] || 0);
+        });
+      });
+      this.save(orders);
+      return orders;
+    },
+    save: function(orders) { localStorage.setItem(storageKey, JSON.stringify(orders)); },
+    nextId: function(orders) {
+      const highest = orders.reduce(function(max, order) {
+        const match = /^PO-(\d+)$/.exec(order.id);
+        return match ? Math.max(max, Number(match[1])) : max;
+      }, 1000);
+      return 'PO-' + String(highest + 1);
+    },
+    formatAmount: function(amount) { return 'RM ' + amount.toFixed(2); }
+  };
+  const ingredients = {
+    'All-purpose flour': { unit: 'kg', price: 4.5 }, 'Caster sugar': { unit: 'kg', price: 5.2 },
+    'Unsalted butter': { unit: 'kg', price: 15 }, 'Eggs': { unit: 'pcs', price: 0.8 },
+    'Cocoa powder': { unit: 'kg', price: 18 }, 'Vanilla extract': { unit: 'L', price: 32 },
+    'Cream cheese': { unit: 'kg', price: 22 }, 'Heavy cream': { unit: 'L', price: 16 },
+    'Fresh strawberries': { unit: 'kg', price: 12 }
+  };
+  const mode = new URLSearchParams(window.location.search).get('mode') === 'edit' ? 'edit' : 'create';
+  const form = document.getElementById('orderForm');
+  const rows = document.getElementById('ingredientRows');
+  const message = document.getElementById('message');
+  const orderId = new URLSearchParams(window.location.search).get('id');
+  let orders = [];
+  let draftItems = [];
+
+  function showError(text) {
+    message.textContent = text;
+    message.classList.add('visible');
+  }
+  function localDateString(date) {
+    return date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0') + '-' + String(date.getDate()).padStart(2, '0');
+  }
+  function updateIngredientDefaults() {
+    const details = ingredients[document.getElementById('entryIngredient').value];
+    if (!details) return;
+    document.getElementById('entryUnit').value = details.unit;
+    document.getElementById('entryUnitPrice').value = details.price.toFixed(2);
+  }
+  function renderItems() {
+    rows.replaceChildren();
+    if (!draftItems.length) {
+      const row = document.createElement('tr');
+      const cell = document.createElement('td');
+      cell.colSpan = 7;
+      cell.className = 'item-empty';
+      cell.textContent = 'No ingredients added yet.';
+      row.appendChild(cell);
+      rows.appendChild(row);
+    } else {
+      draftItems.forEach(function(item, index) {
+        const row = document.createElement('tr');
+        [String(index + 1), item.ingredient, String(item.quantity), item.unit, Number(item.unitPrice).toFixed(2), store.formatAmount(item.quantity * item.unitPrice)].forEach(function(value, cellIndex) {
+          const cell = document.createElement('td');
+          cell.textContent = value;
+          if (cellIndex >= 4) cell.className = 'amount';
+          row.appendChild(cell);
+        });
+        const actionCell = document.createElement('td');
+        const remove = document.createElement('button');
+        remove.type = 'button';
+        remove.className = 'remove-item';
+        remove.textContent = '×';
+        remove.setAttribute('aria-label', 'Remove ' + item.ingredient);
+        remove.addEventListener('click', function() { draftItems.splice(index, 1); renderItems(); });
+        actionCell.appendChild(remove);
+        row.appendChild(actionCell);
+        rows.appendChild(row);
+      });
+    }
+    document.getElementById('totalAmount').textContent = store.formatAmount(draftItems.reduce(function(sum, item) { return sum + item.quantity * item.unitPrice; }, 0));
+  }
+  function clearItemEntry() {
+    document.getElementById('entryIngredient').value = '';
+    document.getElementById('entryQuantity').value = '';
+    document.getElementById('entryUnitPrice').value = '';
+    document.getElementById('entryUnit').value = 'kg';
+  }
+  function addItem() {
+    const ingredientField = document.getElementById('entryIngredient');
+    const quantityField = document.getElementById('entryQuantity');
+    const unitPriceField = document.getElementById('entryUnitPrice');
+    const name = ingredientField.value;
+    const quantity = Number(quantityField.value);
+    const unitPrice = Number(unitPriceField.value);
+    if (!name) {
+      ingredientField.setCustomValidity('Select an ingredient.');
+      ingredientField.reportValidity();
+      return;
+    }
+    ingredientField.setCustomValidity('');
+    if (!quantityField.value || !Number.isFinite(quantity) || quantity <= 0) {
+      showError('Enter a quantity greater than zero.');
+      quantityField.focus();
+      return;
+    }
+    if (!unitPriceField.value || !Number.isFinite(unitPrice) || unitPrice < 0) {
+      showError('Enter a valid unit price of zero or more.');
+      unitPriceField.focus();
+      return;
+    }
+    draftItems.push({ ingredient: name, quantity: quantity, unit: document.getElementById('entryUnit').value, unitPrice: unitPrice });
+    message.classList.remove('visible');
+    clearItemEntry();
+    renderItems();
+  }
+  function submitOrder(event) {
+    event.preventDefault();
+    message.classList.remove('visible');
+    const controls = Array.from(document.querySelector('.item-entry').querySelectorAll('input, select'));
+    controls.forEach(function(control) { control.disabled = true; });
+    const valid = form.reportValidity();
+    controls.forEach(function(control) { control.disabled = false; });
+    if (!valid) return;
+    if (!draftItems.length) {
+      showError('Add at least one ingredient before saving the purchase order.');
+      return;
+    }
+    const orderDate = document.getElementById('orderDate').value;
+    const expectedDate = document.getElementById('expectedDate').value;
+    if (expectedDate < orderDate) {
+      showError('Expected date cannot be earlier than the order date.');
+      return;
+    }
+    const order = {
+      id: orderId || store.nextId(orders),
+      supplier: document.getElementById('supplier').value,
+      orderDate: orderDate,
+      expectedDate: expectedDate,
+      remarks: document.getElementById('remarks').value.trim(),
+      status: mode === 'edit' ? document.getElementById('status').value : 'Pending',
+      items: draftItems
+    };
+    const updatedOrders = orders.slice();
+    if (mode === 'edit') {
+      const index = updatedOrders.findIndex(function(existing) { return existing.id === orderId; });
+      if (index < 0) {
+        showError('This purchase order no longer exists. Return to the order list and try again.');
+        return;
+      }
+      updatedOrders[index] = order;
+    } else {
+      updatedOrders.unshift(order);
+    }
+    try {
+      store.save(updatedOrders);
+      window.location.href = 'admin_purchase_orders.html';
+    } catch (error) {
+      showError('Could not save the purchase order. Check that browser storage is available, then try again.');
+    }
+  }
+  Object.keys(ingredients).forEach(function(name) {
+    const option = document.createElement('option');
+    option.value = name;
+    option.textContent = name;
+    document.getElementById('entryIngredient').appendChild(option);
+  });
+  document.getElementById('entryIngredient').addEventListener('change', function() {
+    this.setCustomValidity('');
+    updateIngredientDefaults();
+  });
+  document.getElementById('entryQuantity').addEventListener('input', function() { this.setCustomValidity(''); });
+  document.getElementById('entryUnitPrice').addEventListener('input', function() { this.setCustomValidity(''); });
+  document.getElementById('addItem').addEventListener('click', addItem);
+  form.addEventListener('submit', submitOrder);
+  try {
+    orders = store.load();
+    if (mode === 'edit') {
+      const order = orders.find(function(existing) { return existing.id === orderId; });
+      if (!order) throw new Error('Purchase order ' + orderId + ' was not found.');
+      document.title = 'Edit Purchase Order - SweetBites';
+      document.getElementById('pageTitle').textContent = 'Edit Purchase Order';
+      document.getElementById('pageDescription').textContent = 'Update the purchase order information and items.';
+      document.getElementById('saveButton').textContent = 'Save Changes';
+      document.getElementById('statusGroup').hidden = false;
+      document.querySelector('#orderForm .card:nth-of-type(2) h2').firstChild.textContent = 'Edit Purchase Order Items ';
+      document.getElementById('supplier').value = order.supplier;
+      document.getElementById('orderDate').value = order.orderDate;
+      document.getElementById('expectedDate').value = order.expectedDate;
+      document.getElementById('remarks').value = order.remarks;
+      document.getElementById('status').value = order.status;
+      draftItems = order.items;
+    } else {
+      document.getElementById('statusGroup').hidden = true;
+      document.getElementById('orderDate').value = localDateString(new Date());
+      const expectedDate = new Date();
+      expectedDate.setDate(expectedDate.getDate() + 5);
+      document.getElementById('expectedDate').value = localDateString(expectedDate);
+    }
+    renderItems();
+  } catch (error) {
+    showError('Purchase order form could not be loaded: ' + error.message);
+    form.querySelectorAll('input, select, button[type="submit"]').forEach(function(control) { control.disabled = true; });
+  }
+})();
+</script>
+</body>
+</html>
