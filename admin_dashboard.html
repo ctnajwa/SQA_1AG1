@@ -71,6 +71,34 @@
   }
   .navbar .user .info .role { color: #333; font-weight: 600; }
   .navbar .user .info .name { color: #999; }
+  .user-menu details { position: relative; }
+  .user-menu summary {
+    list-style: none;
+    cursor: pointer;
+  }
+  .user-menu summary::-webkit-details-marker { display: none; }
+  .user-menu-dropdown {
+    position: absolute;
+    top: calc(100% + 10px);
+    right: 0;
+    min-width: 150px;
+    padding: 6px;
+    background: white;
+    border: 1px solid #EEE;
+    border-radius: 8px;
+    box-shadow: 0 5px 18px rgba(0,0,0,0.12);
+    z-index: 60;
+  }
+  .user-menu-dropdown a {
+    display: block;
+    padding: 9px 12px;
+    border-radius: 5px;
+    color: #6E2C4A;
+    font-size: 13px;
+    text-decoration: none;
+  }
+  .user-menu-dropdown a:hover,
+  .user-menu-dropdown a:focus { background: #F7F0F3; }
 
   /* ---------- Layout ---------- */
   .dashboard { display: flex; min-height: calc(100vh - 63px); }
@@ -165,13 +193,151 @@
     text-transform: uppercase;
     letter-spacing: 0.4px;
   }
+
+  /* ==========================================================
+     NEW: Alert cards (Low Stock + Expiring Soon)
+     ========================================================== */
+  .alerts-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+    margin-bottom: 24px;
+  }
+  .alert-panel {
+    background-color: white;
+    border: 1px solid #EEE;
+    border-radius: 10px;
+    padding: 20px 22px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+  }
+  .alert-panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+  }
+  .alert-panel-header h4 {
+    font-size: 14px;
+    font-weight: 700;
+    color: #4A1F33;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .alert-panel-header .view-all {
+    font-size: 11.5px;
+    color: #6E2C4A;
+    font-weight: 600;
+    text-decoration: none;
+  }
+  .alert-panel-header .view-all:hover { text-decoration: underline; }
+
+  .alert-list { display: flex; flex-direction: column; }
+  .alert-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 11px 0;
+    border-bottom: 1px solid #F7F0F3;
+    font-size: 12.5px;
+  }
+  .alert-row:last-child { border-bottom: none; padding-bottom: 0; }
+  .alert-row:first-child { padding-top: 0; }
+
+  .alert-item-name {
+    font-weight: 600;
+    color: #4A1F33;
+    margin-bottom: 3px;
+  }
+  .alert-item-meta {
+    font-size: 11px;
+    color: #999;
+  }
+  .alert-item-meta .danger { color: #E53935; font-weight: 700; }
+  .alert-item-meta .warning { color: #C77700; font-weight: 700; }
+
+  .alert-action {
+    padding: 5px 12px;
+    border-radius: 5px;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    border: 1px solid #6E2C4A;
+    background: white;
+    color: #6E2C4A;
+    transition: 0.2s;
+    flex-shrink: 0;
+  }
+  .alert-action:hover { background: #6E2C4A; color: white; }
+
+  /* ==========================================================
+     NEW: Line chart (Purchases vs Sales)
+     ========================================================== */
+  .chart-panel {
+    background-color: white;
+    border: 1px solid #EEE;
+    border-radius: 10px;
+    padding: 20px 22px 12px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+    margin-bottom: 24px;
+  }
+  .chart-panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .chart-panel-header h4 {
+    font-size: 14px;
+    font-weight: 700;
+    color: #4A1F33;
+    margin-bottom: 3px;
+  }
+  .chart-panel-header p {
+    font-size: 11.5px;
+    color: #999;
+  }
+  .chart-legend {
+    display: flex;
+    gap: 18px;
+    font-size: 11.5px;
+    color: #666;
+    align-items: center;
+  }
+  .legend-item { display: flex; align-items: center; gap: 6px; }
+  .legend-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+  .legend-dot.purchases { background: #6E2C4A; }
+  .legend-dot.sales { background: #E8A0B8; }
+
+  .chart-svg-wrap {
+    width: 100%;
+    height: 220px;
+  }
+  .chart-svg-wrap svg {
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+  }
+
+  /* Responsive tweaks */
   @media (max-width: 1100px) {
     .metrics-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 900px) {
+    .alerts-grid { grid-template-columns: 1fr; }
   }
   @media (max-width: 600px) {
     .metrics-grid { grid-template-columns: 1fr; }
     .sidebar { display: none; }
     .main-content { padding: 20px; }
+    .chart-legend { flex-direction: column; align-items: flex-start; gap: 6px; }
   }
 </style>
 </head>
@@ -186,12 +352,19 @@
       <div class="sub">Inventory System</div>
     </div>
   </div>
-  <div class="user">
-    <div class="avatar">A</div>
-    <div class="info">
-      <div class="role">Administrator</div>
-      <div class="name">Admin</div>
-    </div>
+  <div class="user-menu">
+    <details>
+      <summary class="user" aria-label="Open admin menu">
+        <div class="avatar">A</div>
+        <div class="info">
+          <div class="role">Administrator</div>
+          <div class="name">Admin</div>
+        </div>
+      </summary>
+      <div class="user-menu-dropdown">
+        <a href="login.html">Logout</a>
+      </div>
+    </details>
   </div>
 </div>
 
@@ -261,6 +434,140 @@
             <h3>3</h3>
             <p>Pending Orders</p>
           </div>
+        </div>
+      </div>
+
+      <!-- ==========================================================
+           NEW: Alerts Row (Low Stock + Expiring Soon)
+           ========================================================== -->
+      <div class="alerts-grid">
+
+        <!-- Low Stock Alert Panel -->
+        <div class="alert-panel">
+          <div class="alert-panel-header">
+            <h4>⚠️ Low Stock Alerts</h4>
+            <a href="admin_ingredient.html" class="view-all">View all →</a>
+          </div>
+          <div class="alert-list">
+            <div class="alert-row">
+              <div>
+                <div class="alert-item-name">Sugar</div>
+                <div class="alert-item-meta">Baking · <span class="danger">8 kg left</span> · threshold 10 kg</div>
+              </div>
+              <button class="alert-action">Reorder</button>
+            </div>
+            <div class="alert-row">
+              <div>
+                <div class="alert-item-name">Butter</div>
+                <div class="alert-item-meta">Dairy · <span class="danger">5 kg left</span> · threshold 10 kg</div>
+              </div>
+              <button class="alert-action">Reorder</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Expiring Soon Alert Panel -->
+        <div class="alert-panel">
+          <div class="alert-panel-header">
+            <h4>⏰ Expiring Soon</h4>
+            <a href="admin_ingredient.html" class="view-all">View all →</a>
+          </div>
+          <div class="alert-list">
+            <div class="alert-row">
+              <div>
+                <div class="alert-item-name">Fresh Milk</div>
+                <div class="alert-item-meta">Dairy · <span class="warning">Expires in 3 days</span> · 15 Oct 2026</div>
+              </div>
+              <button class="alert-action">Use Soon</button>
+            </div>
+            <div class="alert-row">
+              <div>
+                <div class="alert-item-name">Whipping Cream</div>
+                <div class="alert-item-meta">Dairy · <span class="warning">Expires in 5 days</span> · 17 Oct 2026</div>
+              </div>
+              <button class="alert-action">Use Soon</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ==========================================================
+           NEW: Line Chart — Purchases vs Sales
+           ========================================================== -->
+      <div class="chart-panel">
+        <div class="chart-panel-header">
+          <div>
+            <h4>Purchases vs Sales</h4>
+            <p>Last 7 days · Amount in RM</p>
+          </div>
+          <div class="chart-legend">
+            <div class="legend-item"><span class="legend-dot purchases"></span> Purchases</div>
+            <div class="legend-item"><span class="legend-dot sales"></span> Sales</div>
+          </div>
+        </div>
+
+        <div class="chart-svg-wrap">
+          <svg viewBox="0 0 700 220" preserveAspectRatio="none">
+            <!-- Y-axis gridlines -->
+            <line x1="40" y1="20"  x2="680" y2="20"  stroke="#F2F2F2" stroke-width="1"/>
+            <line x1="40" y1="65"  x2="680" y2="65"  stroke="#F2F2F2" stroke-width="1"/>
+            <line x1="40" y1="110" x2="680" y2="110" stroke="#F2F2F2" stroke-width="1"/>
+            <line x1="40" y1="155" x2="680" y2="155" stroke="#F2F2F2" stroke-width="1"/>
+            <line x1="40" y1="200" x2="680" y2="200" stroke="#DDD"    stroke-width="1"/>
+
+            <!-- Y-axis labels -->
+            <text x="30" y="24"  text-anchor="end" font-size="10" fill="#B5B5B5">1000</text>
+            <text x="30" y="69"  text-anchor="end" font-size="10" fill="#B5B5B5">750</text>
+            <text x="30" y="114" text-anchor="end" font-size="10" fill="#B5B5B5">500</text>
+            <text x="30" y="159" text-anchor="end" font-size="10" fill="#B5B5B5">250</text>
+            <text x="30" y="204" text-anchor="end" font-size="10" fill="#B5B5B5">0</text>
+
+            <!-- Purchases line (dark plum) -->
+            <polyline
+              fill="none"
+              stroke="#6E2C4A"
+              stroke-width="3"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              points="90,150 190,120 290,160 390,90 490,130 590,70 670,100"
+            />
+            <!-- Purchases dots -->
+            <circle cx="90"  cy="150" r="4" fill="#6E2C4A"/>
+            <circle cx="190" cy="120" r="4" fill="#6E2C4A"/>
+            <circle cx="290" cy="160" r="4" fill="#6E2C4A"/>
+            <circle cx="390" cy="90"  r="4" fill="#6E2C4A"/>
+            <circle cx="490" cy="130" r="4" fill="#6E2C4A"/>
+            <circle cx="590" cy="70"  r="4" fill="#6E2C4A"/>
+            <circle cx="670" cy="100" r="4" fill="#6E2C4A"/>
+
+            <!-- Sales line (soft pink) -->
+            <polyline
+              fill="none"
+              stroke="#E8A0B8"
+              stroke-width="3"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              points="90,180 190,150 290,110 390,130 490,80 590,100 670,60"
+            />
+            <!-- Sales dots -->
+            <circle cx="90"  cy="180" r="4" fill="#E8A0B8"/>
+            <circle cx="190" cy="150" r="4" fill="#E8A0B8"/>
+            <circle cx="290" cy="110" r="4" fill="#E8A0B8"/>
+            <circle cx="390" cy="130" r="4" fill="#E8A0B8"/>
+            <circle cx="490" cy="80"  r="4" fill="#E8A0B8"/>
+            <circle cx="590" cy="100" r="4" fill="#E8A0B8"/>
+            <circle cx="670" cy="60"  r="4" fill="#E8A0B8"/>
+
+            <!-- X-axis labels -->
+            <text x="90"  y="218" text-anchor="middle" font-size="10" fill="#999">Mon</text>
+            <text x="190" y="218" text-anchor="middle" font-size="10" fill="#999">Tue</text>
+            <text x="290" y="218" text-anchor="middle" font-size="10" fill="#999">Wed</text>
+            <text x="390" y="218" text-anchor="middle" font-size="10" fill="#999">Thu</text>
+            <text x="490" y="218" text-anchor="middle" font-size="10" fill="#999">Fri</text>
+            <text x="590" y="218" text-anchor="middle" font-size="10" fill="#999">Sat</text>
+            <text x="670" y="218" text-anchor="middle" font-size="10" fill="#999">Sun</text>
+          </svg>
         </div>
       </div>
 

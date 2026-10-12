@@ -72,6 +72,34 @@
       }
       .navbar .user .info .role { color: #333; font-weight: 600; }
       .navbar .user .info .name { color: #999; }
+      .user-menu details { position: relative; }
+      .user-menu summary {
+        list-style: none;
+        cursor: pointer;
+      }
+      .user-menu summary::-webkit-details-marker { display: none; }
+      .user-menu-dropdown {
+        position: absolute;
+        top: calc(100% + 10px);
+        right: 0;
+        min-width: 150px;
+        padding: 6px;
+        background: white;
+        border: 1px solid #EEE;
+        border-radius: 8px;
+        box-shadow: 0 5px 18px rgba(0,0,0,0.12);
+        z-index: 60;
+      }
+      .user-menu-dropdown a {
+        display: block;
+        padding: 9px 12px;
+        border-radius: 5px;
+        color: #6E2C4A;
+        font-size: 13px;
+        text-decoration: none;
+      }
+      .user-menu-dropdown a:hover,
+      .user-menu-dropdown a:focus { background: #F7F0F3; }
 
       /* ---------- Layout ---------- */
       .dashboard { display: flex; min-height: calc(100vh - 63px); }
@@ -309,12 +337,19 @@
       <div class="sub">Inventory System</div>
     </div>
   </div>
-  <div class="user">
-    <div class="avatar">A</div>
-    <div class="info">
-      <div class="role">Administrator</div>
-      <div class="name">Admin</div>
-    </div>
+  <div class="user-menu">
+    <details>
+      <summary class="user" aria-label="Open admin menu">
+        <div class="avatar">A</div>
+        <div class="info">
+          <div class="role">Administrator</div>
+          <div class="name">Admin</div>
+        </div>
+      </summary>
+      <div class="user-menu-dropdown">
+        <a href="login.html">Logout</a>
+      </div>
+    </details>
   </div>
 </div>
 

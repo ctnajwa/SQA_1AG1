@@ -126,6 +126,31 @@
     color: #4A1F33;
     font-weight: 600;
   }
+  .nav-actions .user-menu { position: relative; }
+  .nav-actions .user-menu summary { list-style: none; }
+  .nav-actions .user-menu summary::-webkit-details-marker { display: none; }
+  .user-menu-dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    min-width: 150px;
+    padding: 6px;
+    background: white;
+    border: 1px solid #F2E8EC;
+    border-radius: 10px;
+    box-shadow: 0 5px 18px rgba(74, 31, 51, 0.14);
+    z-index: 60;
+  }
+  .user-menu-dropdown a {
+    display: block;
+    padding: 9px 12px;
+    border-radius: 6px;
+    color: #6E2C4A;
+    font-size: 13px;
+    text-decoration: none;
+  }
+  .user-menu-dropdown a:hover,
+  .user-menu-dropdown a:focus { background: #F7F0F3; }
 
   /* ---------- Hero Banner ---------- */
   .hero {
@@ -566,10 +591,15 @@
     <button class="icon-btn" title="Cart">
       🛒
     </button>
-    <button class="user-btn">
-      <div class="avatar">F</div>
-      <span>Fatimah</span>
-    </button>
+    <details class="user-menu">
+      <summary class="user-btn">
+        <div class="avatar">F</div>
+        <span>Fatimah</span>
+      </summary>
+      <div class="user-menu-dropdown">
+        <a href="login.html">Logout</a>
+      </div>
+    </details>
   </div>
 </div>
 
