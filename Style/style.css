@@ -1,0 +1,1036 @@
+
+/* =========================================
+   SWEETBITES CAKE SHOP INVENTORY SYSTEM
+   COMPLETE STYLESHEET
+========================================= */
+
+/* 1. GENERAL RESET */
+* {
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+    min-height: 100%;
+}
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    background-color: #fff7f5;
+    color: #3d3030;
+    font-size: 14px;
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+button,
+input,
+textarea,
+select {
+    font-family: inherit;
+    font-size: inherit;
+}
+
+button {
+    cursor: pointer;
+}
+
+/* 2. DASHBOARD LAYOUT */
+.dashboard {
+    display: flex;
+    width: 100%;
+    min-height: 100vh;
+    background-color: #fff7f5;
+}
+
+.sidebar {
+    width: 250px;
+    min-width: 250px;
+    min-height: 100vh;
+    padding: 25px 16px;
+    display: flex;
+    flex-direction: column;
+    background-color: #fff7f5;
+    border-right: 1px solid #f0e3e5;
+}
+
+.main-content {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    background-color: #fff7f5;
+}
+
+/* 3. LOGO */
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0 8px 25px;
+    margin-bottom: 25px;
+    border-bottom: 1px solid #f0e3e5;
+}
+
+.logo-icon {
+    width: 45px;
+    height: 45px;
+    min-width: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    background-color: #f8dce4;
+    font-size: 25px;
+}
+
+.logo h2 {
+    margin: 0 0 5px;
+    color: #71354c;
+    font-size: 21px;
+    font-weight: bold;
+}
+
+.logo p {
+    margin: 0;
+    color: #a18b91;
+    font-size: 11px;
+}
+
+/* 4. SIDEBAR NAVIGATION */
+.sidebar nav {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.nav-item {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    padding: 14px 15px;
+    border-radius: 10px;
+    color: #79666d;
+    font-size: 14px;
+    transition: background-color 0.2s ease;
+}
+
+.nav-item span {
+    width: 22px;
+    min-width: 22px;
+    text-align: center;
+    font-size: 17px;
+}
+
+.nav-item:hover {
+    background-color: #f8dce4;
+    color: #71354c;
+}
+
+.nav-item.active {
+    background-color: #71354c;
+    color: #ffffff;
+    font-weight: bold;
+}
+
+/* 5. TOP BAR */
+.topbar {
+    width: 100%;
+    min-height: 100px;
+    padding: 22px 35px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    background-color: #fff7f5;
+    border-bottom: 1px solid #f0e3e5;
+}
+
+.topbar h1 {
+    margin: 0 0 8px;
+    color: #71354c;
+    font-size: 25px;
+}
+
+.topbar p {
+    margin: 0;
+    color: #a18b91;
+    font-size: 13px;
+}
+
+/* 6. ADMIN PROFILE */
+.admin-profile {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.profile-circle {
+    width: 42px;
+    height: 42px;
+    min-width: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background-color: #f8dce4;
+    color: #71354c;
+    font-size: 17px;
+    font-weight: bold;
+}
+
+.admin-profile strong {
+    display: block;
+    margin-bottom: 5px;
+    color: #4b353e;
+    font-size: 13px;
+}
+
+.admin-profile small {
+    display: block;
+    color: #a18b91;
+    font-size: 11px;
+}
+
+/* 7. MAIN CONTENT */
+.content {
+    flex: 1;
+    width: 100%;
+    min-width: 0;
+    padding: 30px;
+    background-color: #fff7f5;
+}
+
+.page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 18px;
+    margin-bottom: 25px;
+}
+
+.page-header h2 {
+    margin: 0 0 8px;
+    color: #71354c;
+    font-size: 22px;
+}
+
+.page-header p {
+    margin: 0;
+    color: #a18b91;
+    font-size: 13px;
+}
+
+/* 8. ADD SUPPLIER BUTTON */
+.add-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 9px;
+    background-color: #71354c;
+    color: #ffffff;
+    font-size: 13px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.add-button:hover {
+    background-color: #8f4962;
+}
+
+/* 9. SEARCH BAR */
+.search-container {
+    width: 100%;
+    margin-bottom: 25px;
+}
+
+.search-box {
+    position: relative;
+    width: 100%;
+    max-width: 450px;
+}
+
+.search-box input,
+.search-input,
+#searchInput {
+    display: block;
+    width: 100%;
+    min-height: 44px;
+    padding: 12px 16px;
+    border: 1px solid #ead8de;
+    border-radius: 10px;
+    outline: none;
+    background-color: #ffffff;
+    color: #3d3030;
+    font-size: 13px;
+}
+
+.search-box input {
+    padding-left: 43px;
+}
+
+.search-box input:focus,
+.search-input:focus,
+#searchInput:focus {
+    border-color: #c96b88;
+    box-shadow: 0 0 0 3px rgba(201, 107, 136, 0.12);
+}
+
+.search-icon {
+    position: absolute;
+    top: 50%;
+    left: 15px;
+    transform: translateY(-50%);
+    color: #a18b91;
+    font-size: 17px;
+}
+
+/* 10. SUPPLIER GRID */
+.supplier-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    align-items: stretch;
+    gap: 22px;
+    width: 100%;
+}
+
+/* 11. SUPPLIER CARD */
+.supplier-card {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    min-width: 0;
+    padding: 22px;
+    border: 1px solid #f0e3e5;
+    border-radius: 15px;
+    background-color: #ffffff;
+    box-shadow: 0 4px 15px rgba(113, 53, 76, 0.04);
+}
+
+.supplier-card:hover {
+    border-color: #e6bfcb;
+    box-shadow: 0 8px 25px rgba(113, 53, 76, 0.08);
+    transform: translateY(-2px);
+}
+
+/* 12. SUPPLIER CARD HEADER */
+.card-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 13px;
+    margin-bottom: 20px;
+}
+
+.card-header-info {
+    flex: 1;
+    min-width: 0;
+}
+
+/* 13. SUPPLIER AVATAR */
+.supplier-avatar {
+    width: 48px;
+    height: 48px;
+    min-width: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    background-color: #f8dce4;
+    color: #71354c;
+    font-size: 19px;
+    font-weight: bold;
+}
+
+/* 14. SUPPLIER NAME */
+.supplier-name {
+    margin: 3px 0 8px;
+    color: #71354c;
+    font-size: 16px;
+    font-weight: bold;
+    overflow-wrap: anywhere;
+}
+
+/* 15. STATUS BADGES */
+.status-badge {
+    display: inline-block;
+    padding: 6px 11px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: bold;
+}
+
+.status-badge.active {
+    background-color: #e4f6ea;
+    color: #32804a;
+}
+
+.status-badge.inactive {
+    background-color: #fce8e8;
+    color: #b84d4d;
+}
+
+/* 16. SUPPLIER DETAILS */
+.supplier-details {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    flex: 1;
+    margin-bottom: 22px;
+}
+
+.supplier-detail {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 10px;
+    color: #78676d;
+    font-size: 13px;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+}
+
+.detail-icon {
+    flex: 0 0 20px;
+    width: 20px;
+    min-width: 20px;
+    color: #c96b88;
+    text-align: center;
+}
+
+.detail-label {
+    display: block;
+    margin-bottom: 4px;
+    color: #a18b91;
+    font-size: 11px;
+}
+
+.detail-value {
+    display: block;
+    color: #4b353e;
+    overflow-wrap: anywhere;
+}
+
+/* 17. EDIT AND DELETE BUTTONS */
+.card-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: auto;
+    padding-top: 17px;
+    border-top: 1px solid #f3e5e8;
+}
+
+.edit-button,
+.delete-button {
+    flex: 1;
+    min-height: 40px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    padding: 10px 12px;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: bold;
+    text-align: center;
+    cursor: pointer;
+}
+
+.edit-button {
+    border-color: #f2d5df;
+    background-color: #fff0f4;
+    color: #71354c;
+}
+
+.edit-button:hover {
+    background-color: #f8dce4;
+}
+
+.delete-button {
+    border-color: #f0c9ce;
+    background-color: #ffffff;
+    color: #c0394d;
+}
+
+.delete-button:hover {
+    background-color: #fce8e8;
+}
+
+/* 18. EMPTY SUPPLIER STATE */
+.empty-state {
+    grid-column: 1 / -1;
+    padding: 60px 25px;
+    border: 1px dashed #e6bfcb;
+    border-radius: 15px;
+    background-color: #ffffff;
+    text-align: center;
+}
+
+.empty-state-icon {
+    margin-bottom: 15px;
+    font-size: 45px;
+}
+
+.empty-state h3 {
+    margin: 0 0 10px;
+    color: #71354c;
+    font-size: 19px;
+}
+
+.empty-state p {
+    margin: 0 0 20px;
+    color: #a18b91;
+    font-size: 13px;
+    line-height: 1.7;
+}
+
+/* 19. ADD / EDIT FORM CARD */
+.form-card {
+    width: 100%;
+    max-width: 850px;
+    padding: 30px;
+    border: 1px solid #f0e3e5;
+    border-radius: 15px;
+    background-color: #ffffff;
+    box-shadow: 0 4px 15px rgba(113, 53, 76, 0.04);
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+    margin-bottom: 23px;
+}
+
+.form-group label {
+    color: #71354c;
+    font-size: 13px;
+    font-weight: bold;
+}
+
+/* 20. FORM INPUTS */
+.form-group input,
+.form-group textarea,
+.form-group select {
+    display: block;
+    width: 100%;
+    padding: 13px 15px;
+    border: 1px solid #ead8de;
+    border-radius: 8px;
+    outline: none;
+    background-color: #fffdfd;
+    color: #3d3030;
+    font-size: 13px;
+}
+
+.form-group textarea {
+    min-height: 110px;
+    resize: vertical;
+    line-height: 1.6;
+}
+
+.form-group select {
+    cursor: pointer;
+}
+
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+    color: #b7a5ab;
+}
+
+/* 21. FORM FOCUS */
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+    border-color: #c96b88;
+    background-color: #ffffff;
+    box-shadow: 0 0 0 3px rgba(201, 107, 136, 0.12);
+}
+
+/* 22. FORM BUTTON ROW */
+.form-buttons {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 30px;
+    padding-top: 22px;
+    border-top: 1px solid #f3e5e8;
+}
+
+.cancel-button,
+.save-button {
+    min-height: 43px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 23px;
+    border: none;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: bold;
+    text-align: center;
+    cursor: pointer;
+}
+
+/* 23. CANCEL BUTTON */
+.cancel-button {
+    border: 1px solid #f2d5df;
+    background-color: #f8dce4;
+    color: #71354c;
+}
+
+.cancel-button:hover {
+    background-color: #efc3d1;
+}
+
+/* 24. SAVE / UPDATE BUTTON */
+.save-button {
+    background-color: #71354c;
+    color: #ffffff;
+    text-decoration: none;
+}
+
+.save-button:hover {
+    background-color: #8f4962;
+    transform: translateY(-1px);
+}
+
+/* 25. DELETE CONFIRMATION CARD */
+.delete-confirm-card {
+    max-width: 600px;
+    margin: 20px auto;
+    padding: 40px 30px;
+    text-align: center;
+}
+
+/* 26. DELETE WARNING ICON */
+.delete-warning-icon {
+    width: 70px;
+    height: 70px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+    border-radius: 50%;
+    background-color: #fce8e8;
+    color: #c0394d;
+    font-size: 38px;
+    font-weight: bold;
+}
+
+/* 27. DELETE CONFIRMATION TEXT */
+.delete-confirm-card h2 {
+    margin: 0 0 12px;
+    color: #71354c;
+    font-size: 24px;
+}
+
+.delete-message {
+    max-width: 420px;
+    margin: 0 auto 25px;
+    color: #888888;
+    font-size: 14px;
+    line-height: 1.7;
+}
+
+/* 28. SUPPLIER TO BE DELETED */
+.supplier-to-delete {
+    max-width: 400px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin: 0 auto 30px;
+    padding: 18px;
+    border: 1px solid #f1d7df;
+    border-radius: 12px;
+    background-color: #fff7f5;
+}
+
+.supplier-to-delete span {
+    color: #888888;
+    font-size: 13px;
+}
+
+.supplier-to-delete strong {
+    color: #71354c;
+    font-size: 17px;
+    overflow-wrap: anywhere;
+}
+
+/* 29. DELETE CONFIRMATION BUTTONS */
+.delete-confirm-actions {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.delete-yes-button,
+.delete-no-button {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: bold;
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.delete-yes-button {
+    background-color: #c94b5d;
+    color: #ffffff;
+}
+
+.delete-yes-button:hover {
+    background-color: #a93243;
+}
+
+.delete-no-button {
+    border: 1px solid #f2d5df;
+    background-color: #f8dce4;
+    color: #71354c;
+}
+
+.delete-no-button:hover {
+    background-color: #efc3d1;
+}
+
+/* 30. SUCCESS / ERROR RESULT PAGE */
+.result-card {
+    max-width: 650px;
+    margin: 20px auto;
+    padding: 45px 30px;
+    text-align: center;
+}
+
+.result-icon {
+    width: 65px;
+    height: 65px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+    border-radius: 50%;
+    font-size: 30px;
+    font-weight: bold;
+}
+
+.success-icon {
+    background-color: #e4f6ea;
+    color: #32804a;
+}
+
+.error-icon {
+    background-color: #f9e2e2;
+    color: #b84d4d;
+}
+
+.result-title {
+    margin: 0 0 12px;
+    color: #71354c;
+    font-size: 22px;
+}
+
+.result-message {
+    margin: 0 0 25px;
+    color: #888888;
+    font-size: 14px;
+    line-height: 1.7;
+}
+
+.result-actions {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 25px;
+}
+
+.result-actions .save-button {
+    display: inline-flex;
+    text-decoration: none;
+}
+
+/* 31. TABLE STYLES */
+.table-container {
+    width: 100%;
+    overflow-x: auto;
+    border: 1px solid #f0e3e5;
+    border-radius: 12px;
+    background-color: #ffffff;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #ffffff;
+}
+
+thead {
+    background-color: #fff0f4;
+}
+
+th {
+    padding: 15px;
+    color: #71354c;
+    font-size: 12px;
+    font-weight: bold;
+    text-align: left;
+    white-space: nowrap;
+}
+
+td {
+    padding: 15px;
+    border-top: 1px solid #f3e5e8;
+    color: #5d4a50;
+    font-size: 13px;
+    overflow-wrap: anywhere;
+}
+
+tbody tr:hover {
+    background-color: #fffafa;
+}
+
+/* 32. SCROLLBAR */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background-color: #fff7f5;
+}
+
+::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    background-color: #e6bfcb;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background-color: #c96b88;
+}
+
+/* 33. TABLET RESPONSIVENESS */
+@media (max-width: 1100px) {
+    .sidebar {
+        width: 220px;
+        min-width: 220px;
+        padding: 22px 12px;
+    }
+
+    .content {
+        padding: 25px;
+    }
+
+    .topbar {
+        padding: 22px 25px;
+    }
+
+    .supplier-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 18px;
+    }
+}
+
+/* 34. SMALL TABLETS */
+@media (max-width: 800px) {
+    .sidebar {
+        width: 190px;
+        min-width: 190px;
+        padding: 20px 10px;
+    }
+
+    .logo {
+        gap: 8px;
+        padding-right: 4px;
+        padding-left: 4px;
+    }
+
+    .logo-icon {
+        width: 38px;
+        height: 38px;
+        min-width: 38px;
+        font-size: 21px;
+    }
+
+    .logo h2 {
+        font-size: 17px;
+    }
+
+    .nav-item {
+        gap: 8px;
+        padding: 12px 10px;
+        font-size: 12px;
+    }
+
+    .topbar {
+        padding: 20px;
+    }
+
+    .topbar h1 {
+        font-size: 21px;
+    }
+
+    .content {
+        padding: 20px;
+    }
+}
+
+/* 35. MOBILE PHONES */
+@media (max-width: 600px) {
+    .dashboard {
+        flex-direction: column;
+    }
+
+    .sidebar {
+        width: 100%;
+        min-width: 0;
+        min-height: auto;
+        padding: 15px;
+        border-right: none;
+        border-bottom: 1px solid #f0e3e5;
+    }
+
+    .logo {
+        padding: 0 0 15px;
+        margin-bottom: 15px;
+    }
+
+    .sidebar nav {
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+
+    .nav-item {
+        flex: 1 1 auto;
+        justify-content: center;
+        padding: 10px;
+        font-size: 11px;
+    }
+
+    .nav-item span {
+        width: auto;
+        font-size: 15px;
+    }
+
+    .topbar {
+        min-height: auto;
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 15px;
+        padding: 20px 15px;
+    }
+
+    .topbar h1 {
+        font-size: 21px;
+    }
+
+    .admin-profile {
+        align-self: flex-start;
+    }
+
+    .content {
+        padding: 20px 15px;
+    }
+
+    .page-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .page-header h2 {
+        font-size: 20px;
+    }
+
+    .supplier-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+
+    .form-card {
+        padding: 22px 18px;
+    }
+
+    .form-buttons {
+        align-items: stretch;
+        flex-direction: column-reverse;
+    }
+
+    .cancel-button,
+    .save-button {
+        width: 100%;
+    }
+
+    .delete-confirm-card {
+        padding: 30px 18px;
+    }
+
+    .delete-confirm-card h2 {
+        font-size: 21px;
+    }
+
+    .delete-confirm-actions {
+        flex-direction: column;
+    }
+
+    .delete-yes-button,
+    .delete-no-button {
+        width: 100%;
+    }
+
+    .result-card {
+        padding: 30px 20px;
+    }
+
+    .result-title {
+        font-size: 19px;
+    }
+}
+
+/* 36. VERY SMALL PHONES */
+@media (max-width: 380px) {
+    .nav-item {
+        flex-basis: 100%;
+        justify-content: flex-start;
+    }
+
+    .card-actions {
+        flex-direction: column;
+    }
+
+    .edit-button,
+    .delete-button {
+        width: 100%;
+    }
+
+    .content {
+        padding: 15px 10px;
+    }
+
+    .topbar {
+        padding: 18px 12px;
+    }
+}
