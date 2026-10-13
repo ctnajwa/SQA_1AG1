@@ -1,332 +1,358 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SweetBites - Edit Supplier</title>
+
     <style>
-      * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Arial, sans-serif; }
-      body { background: #F5F5F5; color: #333; }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Arial, sans-serif;
+        }
 
-      /* ---------- Top Navigation ---------- */
-      .navbar {
-        background: white;
-        padding: 12px 26px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        border-bottom: 1px solid #EEE;
-        position: sticky;
-        top: 0;
-        z-index: 50;
-      }
-      .navbar .brand {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-      }
-      .navbar .brand .logo-box {
-        width: 38px;
-        height: 38px;
-        background: #6E2C4A;
-        border-radius: 8px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 18px;
-        color: white;
-      }
-      .navbar .brand .brand-text .name {
-        font-size: 15px;
-        font-weight: 700;
-        color: #4A1F33;
-        line-height: 1.1;
-      }
-      .navbar .brand .brand-text .sub {
-        font-size: 10.5px;
-        color: #999;
-        margin-top: 1px;
-      }
+        body {
+            background: #F5F5F5;
+            color: #333;
+        }
 
-      .navbar .user {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-      }
-      .navbar .user .avatar {
-        width: 34px;
-        height: 34px;
-        border-radius: 50%;
-        background: #6E2C4A;
-        color: white;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 13px;
-        font-weight: 700;
-      }
-      .navbar .user .info {
-        text-align: right;
-        font-size: 12px;
-        line-height: 1.3;
-      }
-      .navbar .user .info .role { color: #333; font-weight: 600; }
-      .navbar .user .info .name { color: #999; }
+        .navbar {
+            background: white;
+            padding: 12px 26px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #EEE;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
 
-      /* ---------- Layout ---------- */
-      .dashboard { display: flex; min-height: calc(100vh - 63px); }
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
 
-      .sidebar {
-        width: 190px;
-        background: white;
-        border-right: 1px solid #EEE;
-        padding: 22px 0;
-        flex-shrink: 0;
-      }
-      .sidebar a {
-        display: block;
-        padding: 12px 22px;
-        font-size: 13.5px;
-        color: #666;
-        text-decoration: none;
-        border-left: 3px solid transparent;
-        transition: 0.15s;
-      }
-      .sidebar a.active {
-        color: #4A1F33;
-        font-weight: 600;
-        border-left-color: #6E2C4A;
-        background: #F7F0F3;
-      }
-      .sidebar a:hover { background: #FAF5F7; }
+        .logo-box {
+            width: 38px;
+            height: 38px;
+            background: #6E2C4A;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: white;
+        }
 
-      /* ---------- Main ---------- */
-      .main-content {
-        flex: 1;
-        padding: 26px 32px 40px;
-      }
+        .brand-text .name {
+            font-size: 15px;
+            font-weight: 700;
+            color: #4A1F33;
+        }
 
-      /* Page header */
-      .page-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        gap: 20px;
-        margin-bottom: 22px;
-        flex-wrap: wrap;
-      }
-      .page-header h2 {
-        font-size: 22px;
-        font-weight: 700;
-        color: #4A1F33;
-        margin-bottom: 4px;
-      }
-      .page-header p { font-size: 12.5px; color: #999; }
+        .brand-text .sub {
+            font-size: 10.5px;
+            color: #999;
+        }
 
-      /* Form Card */
-      .form-card {
-        background: white;
-        border-radius: 10px;
-        border: 1px solid #EEE;
-        padding: 24px;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.03);
-        max-width: 700px;
-      }
+        .user {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
 
-      .form-group {
-        margin-bottom: 16px;
-      }
-      .form-group label {
-        display: block;
-        font-size: 12px;
-        font-weight: 600;
-        color: #666;
-        margin-bottom: 6px;
-      }
-      .form-group input,
-      .form-group select,
-      .form-group textarea {
-        width: 100%;
-        padding: 9px 12px;
-        border: 1px solid #E5E5E5;
-        border-radius: 6px;
-        font-size: 13px;
-        background: #FAFAFA;
-        color: #333;
-        transition: 0.2s;
-        font-family: inherit;
-      }
-      .form-group input:focus,
-      .form-group select:focus,
-      .form-group textarea:focus {
-        outline: none;
-        border-color: #6E2C4A;
-        background: white;
-        box-shadow: 0 0 0 3px rgba(110,44,74,0.1);
-      }
-      .form-group textarea { resize: vertical; }
+        .avatar {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: #6E2C4A;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            font-weight: 700;
+        }
 
-      /* Action Buttons */
-      .form-actions {
-        display: flex;
-        justify-content: flex-end;
-        gap: 10px;
-        padding-top: 16px;
-        border-top: 1px solid #F2F2F2;
-        margin-top: 20px;
-      }
-      .cancel-button {
-        background: white;
-        color: #666;
-        border: 1px solid #DDD;
-        padding: 9px 20px;
-        border-radius: 6px;
-        font-size: 12.5px;
-        font-weight: 600;
-        cursor: pointer;
-        text-decoration: none;
-        transition: 0.2s;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-      }
-      .cancel-button:hover { background: #F5F5F5; border-color: #BBB; }
-      .save-button {
-        background: #6E2C4A;
-        color: white;
-        border: none;
-        padding: 9px 20px;
-        border-radius: 6px;
-        font-size: 12.5px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: 0.2s;
-      }
-      .save-button:hover { background: #5A2139; }
+        .user .info {
+            text-align: right;
+            font-size: 12px;
+            line-height: 1.5;
+        }
 
-      @media (max-width: 900px) {
-        .sidebar { display: none; }
-        .main-content { padding: 20px; }
-      }
+        .user .role {
+            font-weight: 600;
+        }
+
+        .user .name {
+            color: #999;
+        }
+
+        .dashboard {
+            display: flex;
+            min-height: calc(100vh - 63px);
+        }
+
+        .sidebar {
+            width: 190px;
+            background: white;
+            border-right: 1px solid #EEE;
+            padding: 22px 0;
+            flex-shrink: 0;
+        }
+
+        .sidebar a {
+            display: block;
+            padding: 12px 22px;
+            font-size: 13.5px;
+            color: #666;
+            text-decoration: none;
+            border-left: 3px solid transparent;
+            transition: 0.15s;
+        }
+
+        .sidebar a.active {
+            color: #4A1F33;
+            font-weight: 600;
+            border-left-color: #6E2C4A;
+            background: #F7F0F3;
+        }
+
+        .sidebar a:hover {
+            background: #FAF5F7;
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 26px 32px 40px;
+            min-width: 0;
+        }
+
+        .page-header {
+            margin-bottom: 22px;
+        }
+
+        .page-header h2 {
+            font-size: 22px;
+            font-weight: 700;
+            color: #4A1F33;
+            margin-bottom: 4px;
+        }
+
+        .page-header p {
+            font-size: 12.5px;
+            color: #999;
+        }
+
+        .form-card {
+            background: white;
+            border-radius: 10px;
+            border: 1px solid #EEE;
+            padding: 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+            max-width: 700px;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 7px;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid #DDD;
+            border-radius: 9px;
+            font-size: 15px;
+            background: #FAFAFA;
+            color: #333;
+            transition: 0.2s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #6E2C4A;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(110,44,74,0.1);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            padding-top: 18px;
+            border-top: 1px solid #F2F2F2;
+            margin-top: 22px;
+        }
+
+        .cancel-button,
+        .save-button {
+            padding: 11px 20px;
+            border-radius: 7px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            text-align: center;
+        }
+
+        .cancel-button {
+            background: white;
+            color: #666;
+            border: 1px solid #DDD;
+        }
+
+        .cancel-button:hover {
+            background: #F5F5F5;
+        }
+
+        .save-button {
+            background: #6E2C4A;
+            color: white;
+            border: none;
+        }
+
+        .save-button:hover {
+            background: #5A2139;
+        }
+
+        .error-message {
+            color: #B42318;
+            font-size: 14px;
+            margin-bottom: 15px;
+            display: none;
+        }
+
+        @media (max-width: 900px) {
+            .sidebar {
+                display: none;
+            }
+
+            .main-content {
+                padding: 20px;
+            }
+
+            .form-card {
+                padding: 18px;
+            }
+        }
     </style>
 </head>
 
 <body>
 
-<!-- Top Navigation -->
-<div class="navbar">
-  <div class="brand">
-    <div class="logo-box">🎂</div>
-    <div class="brand-text">
-      <div class="name">SweetBites</div>
-      <div class="sub">Inventory System</div>
+    <!-- TOP NAVIGATION -->
+    <div class="navbar">
+        <div class="brand">
+            <div class="logo-box">🎂</div>
+            <div class="brand-text">
+                <div class="name">SweetBites</div>
+                <div class="sub">Inventory System</div>
+            </div>
+        </div>
+
+        <div class="user">
+            <div class="avatar">A</div>
+            <div class="info">
+                <div class="role">Administrator</div>
+                <div class="name">Admin</div>
+            </div>
+        </div>
     </div>
-  </div>
-  <div class="user">
-    <div class="avatar">A</div>
-    <div class="info">
-      <div class="role">Administrator</div>
-      <div class="name">Admin</div>
-    </div>
-  </div>
-</div>
 
-<div class="dashboard">
+    <div class="dashboard">
 
-    <!-- SIDEBAR -->
-    <aside class="sidebar">
-        <nav>
-            <a href="admin_dashboard.html" class="nav-item">
-                 Dashboard
-            </a>
-            <a href="#" class="nav-item">
-                 Ingredient Stock
-            </a>
-            <a href="supplier.html" class="nav-item active">
-                 Supplier
-            </a>
-            <a href="#" class="nav-item">
-                 Purchasing Order
-            </a>
-            <a href="admin_catalog.html" class="nav-item">
-                 Product Catalog
-            </a>
-        </nav>
-    </aside>
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <nav>
+                <a href="admin_dashboard.html">Dashboard</a>
+                <a href="admin_ingredient.html">Ingredient Stock</a>
+                <a href="supplier.html" class="active">Supplier</a>
+                <a href="admin_purchase_orders.html">Purchasing Order</a>
+                <a href="admin_catalog.html">Product Catalog</a>
+            </nav>
+        </aside>
 
-    <!-- MAIN CONTENT -->
-    <main class="main-content">
-
-        <!-- PAGE CONTENT -->
-        <section class="content" style="padding:0;">
+        <!-- MAIN CONTENT -->
+        <main class="main-content">
 
             <div class="page-header">
-                <div>
-                    <h2>Edit Supplier Details</h2>
-                    <p>Make changes to the supplier information below.</p>
-                </div>
+                <h2>Edit Supplier Details</h2>
+                <p>Make changes to the selected supplier information below.</p>
             </div>
 
-            <!-- EDIT SUPPLIER FORM -->
             <div class="form-card">
-                <form onsubmit="event.preventDefault(); alert('Supplier information has been successfully updated!'); window.location.href='supplier.html';">
 
-                    <input type="hidden" name="supplier_id" value="1">
+                <p id="errorMessage" class="error-message"></p>
 
-                    <!-- SUPPLIER NAME -->
+                <form id="editSupplierForm">
+
                     <div class="form-group">
                         <label for="supplier_name">Supplier Name *</label>
                         <input
                             type="text"
                             id="supplier_name"
                             name="supplier_name"
-                            value="Kirthana"
                             placeholder="Enter supplier name"
                             maxlength="100"
                             required
                         >
                     </div>
 
-                    <!-- CONTACT PERSON -->
                     <div class="form-group">
                         <label for="contact_person">Contact Person</label>
                         <input
                             type="text"
                             id="contact_person"
                             name="contact_person"
-                            value="Sneha"
                             placeholder="Enter contact person's name"
                             maxlength="100"
                         >
                     </div>
 
-                    <!-- PHONE -->
                     <div class="form-group">
                         <label for="phone">Phone Number</label>
                         <input
                             type="tel"
                             id="phone"
                             name="phone"
-                            value="0154468791"
                             placeholder="Enter phone number"
                             maxlength="20"
                         >
                     </div>
 
-                    <!-- EMAIL -->
                     <div class="form-group">
                         <label for="email">Email Address</label>
                         <input
                             type="email"
                             id="email"
                             name="email"
-                            value="ksn@gmail.com"
                             placeholder="Enter email address"
                             maxlength="100"
                         >
                     </div>
 
-                    <!-- ADDRESS -->
                     <div class="form-group">
                         <label for="address">Address</label>
                         <textarea
@@ -334,32 +360,185 @@
                             name="address"
                             rows="4"
                             placeholder="Enter supplier address"
-                        >30, Taman Merbau Indah</textarea>
+                        ></textarea>
                     </div>
 
-                    <!-- STATUS -->
                     <div class="form-group">
                         <label for="status">Supplier Status *</label>
                         <select id="status" name="status" required>
-                            <option value="Active" selected>Active</option>
+                            <option value="Active">Active</option>
                             <option value="Inactive">Inactive</option>
                         </select>
                     </div>
 
-                    <!-- FORM BUTTONS -->
                     <div class="form-actions">
                         <a href="supplier.html" class="cancel-button">Cancel</a>
-                        <button type="submit" class="save-button">Update Supplier</button>
+                        <button type="submit" class="save-button">
+                            Update Supplier
+                        </button>
                     </div>
 
                 </form>
             </div>
+        </main>
+    </div>
 
-        </section>
+    <script>
+        const STORAGE_KEY = "sweetBitesSuppliers";
+        const LEGACY_KEY = "sweetBitesSupplier";
 
-    </main>
+        const form = document.getElementById("editSupplierForm");
+        const errorMessage = document.getElementById("errorMessage");
 
-</div>
+        const params = new URLSearchParams(window.location.search);
+        const supplierId = params.get("id");
+
+        let suppliers = [];
+        let selectedSupplier = null;
+
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.style.display = "block";
+            form.style.display = "none";
+        }
+
+        function loadSuppliers() {
+            try {
+                const saved = JSON.parse(
+                    localStorage.getItem(STORAGE_KEY) || "[]"
+                );
+
+                suppliers = Array.isArray(saved) ? saved : [];
+            } catch (error) {
+                console.error("Unable to read supplier list:", error);
+                suppliers = [];
+            }
+
+            // Migrate the previous single-supplier record if present.
+            try {
+                const legacyData = localStorage.getItem(LEGACY_KEY);
+
+                if (legacyData) {
+                    const legacy = JSON.parse(legacyData);
+
+                    if (legacy && typeof legacy === "object") {
+                        const legacyId = String(
+                            legacy.id || "legacy-supplier"
+                        );
+
+                        const existing = suppliers.find(
+                            supplier => String(supplier.id) === legacyId
+                        );
+
+                        if (!existing) {
+                            suppliers.push({
+                                ...legacy,
+                                id: legacyId
+                            });
+                        }
+
+                        localStorage.setItem(
+                            STORAGE_KEY,
+                            JSON.stringify(suppliers)
+                        );
+
+                        localStorage.removeItem(LEGACY_KEY);
+                    }
+                }
+            } catch (error) {
+                console.error("Unable to migrate old supplier:", error);
+            }
+        }
+
+        function populateForm(supplier) {
+            document.getElementById("supplier_name").value =
+                supplier.name || "";
+
+            document.getElementById("contact_person").value =
+                supplier.contact || "";
+
+            document.getElementById("phone").value =
+                supplier.phone || "";
+
+            document.getElementById("email").value =
+                supplier.email || "";
+
+            document.getElementById("address").value =
+                supplier.address || "";
+
+            document.getElementById("status").value =
+                supplier.status || "Active";
+        }
+
+        loadSuppliers();
+
+        if (!supplierId) {
+            showError(
+                "No supplier ID was provided. Return to the supplier list and click Edit on the supplier you want to update."
+            );
+        } else {
+            selectedSupplier = suppliers.find(
+                supplier => String(supplier.id) === String(supplierId)
+            );
+
+            if (!selectedSupplier) {
+                showError(
+                    "The selected supplier could not be found. Check that your supplier list and edit page use the same storage key and supplier ID."
+                );
+            } else {
+                populateForm(selectedSupplier);
+            }
+        }
+
+        form.addEventListener("submit", function (event) {
+            event.preventDefault();
+
+            if (!selectedSupplier || !supplierId) {
+                alert("No supplier selected. Please return to the supplier list.");
+                return;
+            }
+
+            const updatedSupplier = {
+                ...selectedSupplier,
+                name: document.getElementById("supplier_name").value.trim(),
+                contact: document.getElementById("contact_person").value.trim(),
+                phone: document.getElementById("phone").value.trim(),
+                email: document.getElementById("email").value.trim(),
+                address: document.getElementById("address").value.trim(),
+                status: document.getElementById("status").value
+            };
+
+            if (!updatedSupplier.name) {
+                alert("Please enter a supplier name.");
+                document.getElementById("supplier_name").focus();
+                return;
+            }
+
+            const index = suppliers.findIndex(
+                supplier => String(supplier.id) === String(supplierId)
+            );
+
+            if (index === -1) {
+                alert("Supplier not found. No changes were saved.");
+                return;
+            }
+
+            suppliers[index] = updatedSupplier;
+
+            try {
+                localStorage.setItem(
+                    STORAGE_KEY,
+                    JSON.stringify(suppliers)
+                );
+
+                alert("Supplier updated successfully!");
+                window.location.href = "supplier.html";
+            } catch (error) {
+                console.error("Unable to save supplier:", error);
+                alert("Unable to save supplier details. Please try again.");
+            }
+        });
+    </script>
 
 </body>
 </html>
