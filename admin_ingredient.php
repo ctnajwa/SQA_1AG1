@@ -1,4 +1,7 @@
-<!DOCTYPE html>
+<php?
+
+include 'db.php';
+
 <html lang="en">
 
 <head>
