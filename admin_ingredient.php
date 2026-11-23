@@ -1,15 +1,11 @@
 <?php
+require_once __DIR__ . '/ingredient_repository.php';
 require_once __DIR__ . '/db.php';
-$ingredientRows = [];
-$result = $conn->query("SELECT ingredient_id AS id, ingredient_name AS name, category, quantity, unit, expiry_date AS expiry FROM ingredients ORDER BY ingredient_name");
-if ($result) {
-    while ($row = $result->fetch_assoc()) {
-        $row['id'] = (int)$row['id'];
-        $row['quantity'] = (float)$row['quantity'];
-        $ingredientRows[] = $row;
-    }
-}
-$ingredientsJson = json_encode($ingredientRows, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT);
+$ingredientRows = ingredient_list($conn);
+$ingredientsJson = json_encode(
+    $ingredientRows,
+    JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT
+);
 $conn->close();
 ?>
 <!DOCTYPE html>
@@ -805,9 +801,33 @@ $conn->close();
                 message: "Database request failed. Check MySQL, db.php, and the imported SQL file."
             }));
             if (!response.ok || !result.success) {
-                throw new Error(result.message || "Unable to save ingredient.");
+                const error = new Error(result.message || "Unable to save ingredient.");
+                error.field = result.field || null;
+                throw error;
             }
             return result;
+        }
+
+        /* Give specific, accessible feedback from server-side validation (U-T02). */
+        function displayIngredientError(error) {
+            const fields = {
+                name: "ingredientName",
+                category: "ingredientCategory",
+                quantity: "ingredientQuantity",
+                unit: "ingredientUnit",
+                expiry: "ingredientExpiry"
+            };
+            const inputId = error.field && fields[error.field];
+            if (!inputId) {
+                alert(error.message);
+                return;
+            }
+            const input = document.getElementById(inputId);
+            input.setCustomValidity(error.message);
+            input.reportValidity();
+            const clearError = () => input.setCustomValidity("");
+            input.addEventListener("input", clearError, { once: true });
+            input.addEventListener("change", clearError, { once: true });
         }
 
         /* Prevent text from being treated as HTML */
@@ -914,7 +934,7 @@ $conn->close();
                             ${status === "Low Stock" ? `
                                 <button type="button"
                                     class="btn-delete"
-                                    onclick="window.location.href='admin_create_purchase_order.html'">
+                                    onclick="window.location.href='ingredient_order_redirect.php?ingredient_id=${id}'">
                                     Purchase Order
                                 </button>
                             ` : ""}
@@ -997,7 +1017,8 @@ $conn->close();
                     expiry: document.getElementById("ingredientExpiry").value
                 };
 
-                if (!ingredient.name || !ingredient.expiry || !Number.isFinite(ingredient.quantity) || ingredient.quantity < 0) {
+                const quantityText = document.getElementById("ingredientQuantity").value.trim();
+                if (!ingredient.name || !ingredient.expiry || quantityText === "" || !Number.isFinite(ingredient.quantity) || ingredient.quantity < 0) {
                     alert("Please enter valid ingredient information.");
                     return;
                 }
@@ -1014,7 +1035,7 @@ $conn->close();
                     closeModal("ingredientModal");
                     showToast(id ? "Ingredient updated successfully." : "Ingredient added successfully.");
                 } catch (error) {
-                    alert(error.message);
+                    displayIngredientError(error);
                 }
             });
 

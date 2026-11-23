@@ -1,74 +1,108 @@
 <?php
-require_once __DIR__ . '/db.php';
-header('Content-Type: application/json; charset=utf-8');
+declare(strict_types=1);
 
-function respond(int $status, array $payload): void {
+/**
+ * Ingredient module API. POST JSON:
+ *   ?action=save    {id: null | positive integer, name, category, quantity, unit, expiry}
+ *   ?action=delete  {id: positive integer}
+ *
+ * Returns: {success: true, ingredient: {...}} for save;
+ *          {success: true} for delete.
+ *
+ * Keep this file in the same folder as admin_ingredient.php and db.php.
+ */
+header('Content-Type: application/json; charset=utf-8');
+header('Cache-Control: no-store');
+ini_set('display_errors', '0');  // Avoid leaking SQL errors into JSON.
+
+require_once __DIR__ . '/ingredient_validation.php';
+require_once __DIR__ . '/ingredient_repository.php';
+
+function ingredient_reply(int $status, array $body): void
+{
     http_response_code($status);
-    echo json_encode($payload, JSON_UNESCAPED_UNICODE);
+    echo json_encode($body, JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);
     exit;
 }
 
+function ingredient_positive_id($raw): int
+{
+    $id = filter_var($raw, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+    if ($id === false) {
+        throw new IngredientValidationError('id', 'A valid ingredient ID is required.');
+    }
+    return (int)$id;
+}
+
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    header('Allow: POST');
+    ingredient_reply(405, ['success' => false, 'message' => 'Only POST requests are allowed.']);
+}
+
 $action = $_GET['action'] ?? '';
-$input = json_decode(file_get_contents('php://input'), true);
-if (!is_array($input)) $input = [];
+if (!in_array($action, ['save', 'delete'], true)) {
+    ingredient_reply(400, ['success' => false, 'message' => 'Unknown ingredient action.']);
+}
 
-if ($action === 'save' && $_SERVER['REQUEST_METHOD'] === 'POST') {
-    $id = isset($input['id']) && $input['id'] !== '' ? filter_var($input['id'], FILTER_VALIDATE_INT) : null;
-    $name = trim((string)($input['name'] ?? ''));
-    $category = (string)($input['category'] ?? '');
-    $quantity = filter_var($input['quantity'] ?? null, FILTER_VALIDATE_FLOAT);
-    $unit = (string)($input['unit'] ?? '');
-    $expiry = (string)($input['expiry'] ?? '');
-    $categories = ['Baking', 'Dairy', 'Fruits', 'Sweeteners', 'Others'];
-    $units = ['KG', 'G', 'PCS', 'L', 'ML'];
-
-    if (($id === false) || $name === '' || strlen($name) > 100 || !in_array($category, $categories, true)
-        || $quantity === false || $quantity < 0 || !in_array($unit, $units, true)
-        || !preg_match('/^\d{4}-\d{2}-\d{2}$/', $expiry)) {
-        respond(422, ['success' => false, 'message' => 'Please enter valid ingredient information.']);
+try {
+    $raw = file_get_contents('php://input');
+    if ($raw === false || strlen($raw) > 65536) {
+        ingredient_reply(413, ['success' => false, 'message' => 'Request body is too large.']);
+    }
+    $input = json_decode($raw, true, 32, JSON_THROW_ON_ERROR);
+    if (!is_array($input)) {
+        ingredient_reply(400, ['success' => false, 'message' => 'Expected a JSON object.']);
     }
 
-    if ($id) {
-        $stmt = $conn->prepare('UPDATE ingredients SET ingredient_name = ?, category = ?, quantity = ?, unit = ?, expiry_date = ? WHERE ingredient_id = ?');
-        if (!$stmt) respond(500, ['success' => false, 'message' => 'Could not prepare ingredient update.']);
-        $stmt->bind_param('ssdssi', $name, $category, $quantity, $unit, $expiry, $id);
+    // Reject invalid requests BEFORE contacting MySQL.
+    if ($action === 'save') {
+        $value = validate_ingredient_payload($input);
+        $rawId = $input['id'] ?? null;
+        $id = ($rawId === null || $rawId === '') ? null : ingredient_positive_id($rawId);
     } else {
-        $stmt = $conn->prepare('INSERT INTO ingredients (ingredient_name, category, quantity, unit, expiry_date) VALUES (?, ?, ?, ?, ?)');
-        if (!$stmt) respond(500, ['success' => false, 'message' => 'Could not prepare ingredient insert.']);
-        $stmt->bind_param('ssdss', $name, $category, $quantity, $unit, $expiry);
+        $id = ingredient_positive_id($input['id'] ?? null);
     }
 
-    if (!$stmt->execute()) {
-        $duplicate = $stmt->errno === 1062;
-        $stmt->close();
-        respond($duplicate ? 409 : 500, ['success' => false, 'message' => $duplicate ? 'This ingredient already exists.' : 'Unable to save ingredient.']);
+    // db.php is the existing shared connection file; it is NOT modified in this package.
+    require __DIR__ . '/db.php';
+
+    if (!isset($conn) || !($conn instanceof mysqli)) {
+        throw new RuntimeException('MySQL connection is unavailable.');
     }
-    $savedId = $id ?: $conn->insert_id;
-    $stmt->close();
+    $conn->set_charset('utf8mb4');
+    // Make database errors catchable even if db.php disables MySQLi reports.
+    mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 
-    $stmt = $conn->prepare('SELECT ingredient_id AS id, ingredient_name AS name, category, quantity, unit, expiry_date AS expiry FROM ingredients WHERE ingredient_id = ?');
-    $stmt->bind_param('i', $savedId);
-    $stmt->execute();
-    $stmt->bind_result($savedId, $savedName, $savedCategory, $savedQuantity, $savedUnit, $savedExpiry);
-    $stmt->fetch();
-    $stmt->close();
-    respond(200, ['success' => true, 'ingredient' => [
-        'id' => (int)$savedId, 'name' => $savedName, 'category' => $savedCategory,
-        'quantity' => (float)$savedQuantity, 'unit' => $savedUnit, 'expiry' => $savedExpiry
-    ]]);
+    if ($action === 'save') {
+        $saved = ingredient_save($conn, $id, $value);
+        if ($saved === null) {
+            ingredient_reply(404, ['success' => false, 'message' => 'Ingredient not found.']);
+        }
+        ingredient_reply(200, ['success' => true, 'ingredient' => $saved]);
+    }
+
+    if (!ingredient_delete($conn, $id)) {
+        ingredient_reply(404, ['success' => false, 'message' => 'Ingredient not found.']);
+    }
+    ingredient_reply(200, ['success' => true]);
+} catch (IngredientValidationError $error) {
+    ingredient_reply(422, [
+        'success' => false,
+        'field' => $error->field,
+        'message' => $error->getMessage(),
+    ]);
+} catch (JsonException $error) {
+    ingredient_reply(400, ['success' => false, 'message' => 'Malformed JSON request.']);
+} catch (mysqli_sql_exception $error) {
+    error_log('Ingredient DB error: ' . $error->getMessage());
+    if ($error->getCode() === 1062) {
+        ingredient_reply(409, [
+            'success' => false, 'field' => 'name',
+            'message' => 'An ingredient with this name already exists.',
+        ]);
+    }
+    ingredient_reply(500, ['success' => false, 'message' => 'Unable to complete database operation.']);
+} catch (Throwable $error) {
+    error_log('Ingredient API error: ' . $error->getMessage());
+    ingredient_reply(500, ['success' => false, 'message' => 'Unable to process ingredient request.']);
 }
-
-if ($action === 'delete' && $_SERVER['REQUEST_METHOD'] === 'POST') {
-    $id = filter_var($input['id'] ?? null, FILTER_VALIDATE_INT);
-    if (!$id || $id < 1) respond(422, ['success' => false, 'message' => 'Invalid ingredient ID.']);
-    $stmt = $conn->prepare('DELETE FROM ingredients WHERE ingredient_id = ?');
-    if (!$stmt) respond(500, ['success' => false, 'message' => 'Could not prepare ingredient deletion.']);
-    $stmt->bind_param('i', $id);
-    $stmt->execute();
-    $deleted = $stmt->affected_rows > 0;
-    $stmt->close();
-    if (!$deleted) respond(404, ['success' => false, 'message' => 'Ingredient not found.']);
-    respond(200, ['success' => true]);
-}
-
-respond(405, ['success' => false, 'message' => 'Unsupported ingredient request.']);
