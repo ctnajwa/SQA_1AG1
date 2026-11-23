@@ -1,0 +1,24 @@
+SWEETBITES — CARA SETUP DATABASE DAN LOGIN (XAMPP)
+
+Akaun demo daripada kod:
+  Admin: username admin | password Admin123
+  User : username user  | password User123
+
+Langkah-langkah:
+1. Extract folder SQA_1AG1 ke C:\xampp\htdocs\SQA_1AG1.
+2. Buka XAMPP Control Panel. Tekan Start untuk Apache dan MySQL.
+3. Buka http://localhost/phpmyadmin dalam browser.
+4. Pilih tab Import > Choose File. Pilih SQA_1AG1\cake_shop_inventory.sql, kemudian tekan Import/Go.
+   (Fail ini mencipta database cake_shop_inventory dan jadual users, ingredients, supplier, purchase_orders, purchase_order_items serta products; ia turut memasukkan data demo yang ada dalam kod.)
+5. Semak SQA_1AG1\db.php. Tetapan asal untuk XAMPP biasa ialah user root, password kosong, port 3306.
+   Jika MySQL anda guna password atau port lain, ubah nilai tersebut dalam db.php.
+6. Buka http://localhost/SQA_1AG1/login.php.
+7. Pilih Admin, masukkan admin / Admin123, tekan Log In. Anda akan dibawa ke admin_dashboard.html.
+   Untuk akaun biasa, pilih User dan masukkan user / User123. Anda akan dibawa ke portal_catalog.html.
+8. Untuk tambah bahan, buka Ingredient Stock melalui menu atau terus ke http://localhost/SQA_1AG1/admin_ingredient.php. Tekan + Add Ingredient, isi maklumat, kemudian Save Ingredient. Rekod baharu disimpan dalam jadual ingredients.
+
+Nota:
+- Jangan buka fail PHP dengan double-click atau Live Server; PHP perlu dijalankan melalui Apache/XAMPP.
+- Pangkalan data ini menyimpan akaun login dan membina jadual supplier yang digunakan oleh fail PHP.
+- Jadual modul lain turut mengandungi data demo daripada kod. Halaman purchase order, supplier HTML dan product catalog masih menggunakan paparan/JavaScript asal; jadualnya tersedia dalam DB tetapi halaman tersebut belum disambungkan ke DB.
+- Akaun ini untuk demo kelas sahaja. Tukar kata laluan jika digunakan untuk sistem sebenar.

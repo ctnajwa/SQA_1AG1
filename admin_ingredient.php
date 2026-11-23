@@ -1,3 +1,17 @@
+<?php
+require_once __DIR__ . '/db.php';
+$ingredientRows = [];
+$result = $conn->query("SELECT ingredient_id AS id, ingredient_name AS name, category, quantity, unit, expiry_date AS expiry FROM ingredients ORDER BY ingredient_name");
+if ($result) {
+    while ($row = $result->fetch_assoc()) {
+        $row['id'] = (int)$row['id'];
+        $row['quantity'] = (float)$row['quantity'];
+        $ingredientRows[] = $row;
+    }
+}
+$ingredientsJson = json_encode($ingredientRows, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT);
+$conn->close();
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -592,7 +606,7 @@
         <!-- Sidebar navigation -->
         <aside class="sidebar">
             <a href="admin_dashboard.html">Dashboard</a>
-            <a href="admin_ingredient.html" class="active">Ingredient Stock</a>
+            <a href="admin_ingredient.php" class="active">Ingredient Stock</a>
             <a href="supplier.html">Supplier</a>
             <a href="admin_purchase_orders.html">Purchase Order</a>
             <a href="admin_catalog.html">Product Catalog</a>
@@ -679,7 +693,7 @@
                 <button type="button" class="modal-close" onclick="closeModal('ingredientModal')">&times;</button>
             </div>
 
-            <form id="ingredientForm">
+            <form id="ingredientForm" autocomplete="off">
                 <div class="modal-body">
                     <input type="hidden" id="ingredientId">
 
@@ -775,72 +789,25 @@
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
     <script>
-        const STORAGE_KEY = "sweetbites_ingredient_inventory";
-
-        /* Default ingredient data for first visit */
-        const defaultIngredients = [
-            {
-                id: 1,
-                name: "Flour",
-                category: "Baking",
-                quantity: 25,
-                unit: "KG",
-                expiry: "2026-12-15"
-            },
-            {
-                id: 2,
-                name: "Sugar",
-                category: "Sweeteners",
-                quantity: 8,
-                unit: "KG",
-                expiry: "2027-01-20"
-            },
-            {
-                id: 3,
-                name: "Butter",
-                category: "Dairy",
-                quantity: 5,
-                unit: "KG",
-                expiry: "2026-10-20"
-            }
-        ];
-
-        let ingredients = loadIngredients();
+        let ingredients = <?php echo $ingredientsJson ?: '[]'; ?>;
         let selectedId = null;
         let deleteId = null;
         let toastTimer;
 
-        /* Load saved ingredients from browser storage */
-        function loadIngredients() {
-            try {
-                const saved = localStorage.getItem(STORAGE_KEY);
-
-                if (saved !== null) {
-                    const data = JSON.parse(saved);
-
-                    if (Array.isArray(data)) {
-                        return data;
-                    }
-                }
-            } catch (error) {
-                console.error("Could not load ingredients:", error);
+        async function sendIngredientRequest(action, payload) {
+            const response = await fetch(`ingredients_api.php?action=${action}`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            });
+            const result = await response.json().catch(() => ({
+                success: false,
+                message: "Database request failed. Check MySQL, db.php, and the imported SQL file."
+            }));
+            if (!response.ok || !result.success) {
+                throw new Error(result.message || "Unable to save ingredient.");
             }
-
-            return defaultIngredients.map(item => ({ ...item }));
-        }
-
-        /* Save ingredient data to browser storage */
-        function saveIngredients() {
-            try {
-                localStorage.setItem(
-                    STORAGE_KEY,
-                    JSON.stringify(ingredients)
-                );
-                return true;
-            } catch (error) {
-                alert("Unable to save data in this browser.");
-                return false;
-            }
+            return result;
         }
 
         /* Prevent text from being treated as HTML */
@@ -1015,83 +982,40 @@
                 .classList.add("active");
         }
 
-        /* Save a new ingredient or update an existing ingredient */
+        /* Save new or edited ingredients to MySQL through ingredients_api.php */
         document.getElementById("ingredientForm")
-            .addEventListener("submit", function (event) {
+            .addEventListener("submit", async function (event) {
                 event.preventDefault();
 
                 const id = document.getElementById("ingredientId").value;
-                const name = document.getElementById("ingredientName")
-                    .value.trim();
-                const category = document.getElementById("ingredientCategory")
-                    .value;
-                const quantityInput = document.getElementById(
-                    "ingredientQuantity"
-                ).value;
-                const quantity = Number(quantityInput);
-                const unit = document.getElementById("ingredientUnit").value;
-                const expiry = document.getElementById("ingredientExpiry").value;
+                const ingredient = {
+                    id: id || null,
+                    name: document.getElementById("ingredientName").value.trim(),
+                    category: document.getElementById("ingredientCategory").value,
+                    quantity: Number(document.getElementById("ingredientQuantity").value),
+                    unit: document.getElementById("ingredientUnit").value,
+                    expiry: document.getElementById("ingredientExpiry").value
+                };
 
-                if (
-                    !name ||
-                    !expiry ||
-                    quantityInput === "" ||
-                    !Number.isFinite(quantity) ||
-                    quantity < 0
-                ) {
+                if (!ingredient.name || !ingredient.expiry || !Number.isFinite(ingredient.quantity) || ingredient.quantity < 0) {
                     alert("Please enter valid ingredient information.");
                     return;
                 }
 
-                /* Prevent duplicate ingredient names */
-                if (ingredients.some(item =>
-                    item.name.toLowerCase() === name.toLowerCase() &&
-                    String(item.id) !== id
-                )) {
-                    alert("This ingredient already exists.");
-                    return;
-                }
-
-                const previous = ingredients.map(item => ({ ...item }));
-
-                if (id) {
-                    ingredients = ingredients.map(item =>
-                        Number(item.id) === Number(id)
-                            ? {
-                                ...item,
-                                name,
-                                category,
-                                quantity,
-                                unit,
-                                expiry
-                            }
-                            : item
-                    );
-                } else {
-                    ingredients.push({
-                        id: Date.now(),
-                        name,
-                        category,
-                        quantity,
-                        unit,
-                        expiry
-                    });
-                }
-
-                if (!saveIngredients()) {
-                    ingredients = previous;
+                try {
+                    const result = await sendIngredientRequest("save", ingredient);
+                    const saved = result.ingredient;
+                    if (id) {
+                        ingredients = ingredients.map(item => Number(item.id) === Number(id) ? saved : item);
+                    } else {
+                        ingredients.push(saved);
+                    }
                     renderIngredients();
-                    return;
+                    closeModal("ingredientModal");
+                    showToast(id ? "Ingredient updated successfully." : "Ingredient added successfully.");
+                } catch (error) {
+                    alert(error.message);
                 }
-
-                renderIngredients();
-                closeModal("ingredientModal");
-
-                showToast(
-                    id
-                        ? "Ingredient updated successfully."
-                        : "Ingredient added successfully."
-                );
             });
 
         /* Display detailed information for an ingredient */
@@ -1149,27 +1073,19 @@
                 .classList.add("active");
         }
 
-        /* Delete the selected ingredient */
-        function confirmDelete() {
+        /* Delete the selected ingredient from MySQL */
+        async function confirmDelete() {
             if (deleteId === null) return;
-
-            const previous = ingredients.map(item => ({ ...item }));
-
-            ingredients = ingredients.filter(
-                item => Number(item.id) !== Number(deleteId)
-            );
-
-            if (!saveIngredients()) {
-                ingredients = previous;
+            try {
+                await sendIngredientRequest("delete", { id: deleteId });
+                ingredients = ingredients.filter(item => Number(item.id) !== Number(deleteId));
                 renderIngredients();
-                return;
+                closeModal("deleteModal");
+                deleteId = null;
+                showToast("Ingredient deleted successfully.");
+            } catch (error) {
+                alert(error.message);
             }
-
-            renderIngredients();
-            closeModal("deleteModal");
-            deleteId = null;
-
-            showToast("Ingredient deleted successfully.");
         }
 
         /* Close a popup */
